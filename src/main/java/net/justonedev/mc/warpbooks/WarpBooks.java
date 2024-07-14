@@ -4,6 +4,7 @@ import net.justonedev.mc.warpbooks.resourcepack.Resourcepack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -17,7 +18,7 @@ public final class WarpBooks extends JavaPlugin {
     
     // Recipe: Paper + Ender pearl for pages
     
-    public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pagePitchKey, pageYawKey;
+    public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
     public static int LevelCostPerTeleport = 3, LevelCostPerTeleportWorlds = 5;
     public static float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 2.8f;
     
@@ -33,6 +34,9 @@ public final class WarpBooks extends JavaPlugin {
         idKey = new NamespacedKey(this, "id");
         pageCraftkey = new NamespacedKey(this, "pageCraftRecipeKey");
         pageWorldKey = new NamespacedKey(this, "pageWorld");
+        pageXKey = new NamespacedKey(this, "pageX");
+        pageYKey = new NamespacedKey(this, "pageY");
+        pageZKey = new NamespacedKey(this, "pageZ");
         pagePitchKey = new NamespacedKey(this, "pagePitch");
         pageYawKey = new NamespacedKey(this, "pageYaw");
         // Plugin startup logic
