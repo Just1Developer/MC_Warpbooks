@@ -3,6 +3,7 @@ package net.justonedev.mc.warpbooks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,11 +18,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class WarpBook implements Listener {
+	
+	// Todo for upgrading: p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 1.0f); (its a good sound)
 	
 	private static ItemStack warpBook, opWarpBook;
 	
@@ -148,7 +152,8 @@ public class WarpBook implements Listener {
 	// --------------------- INVENTORY CLICK -
 	
 	
-	private static final List<ClickType> RECOGNIZED_CLICK_TYPES = Arrays.asList(ClickType.LEFT, ClickType.SHIFT_LEFT);
+	private static final List<ClickType> NORMAL_CLICK_TYPES = Arrays.asList(ClickType.LEFT, ClickType.SHIFT_LEFT, ClickType.RIGHT, ClickType.SHIFT_RIGHT);
+	private static final List<ClickType> RECOGNIZED_CLICK_TYPES = Collections.singletonList(ClickType.LEFT);
 	
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
@@ -162,20 +167,19 @@ public class WarpBook implements Listener {
 		
 		if (!lowercase.contains("edit")) {
 			
-			if (!RECOGNIZED_CLICK_TYPES.contains(e.getClick())) {
+			if (!NORMAL_CLICK_TYPES.contains(e.getClick())) {
 				e.setCancelled(true);
 				return;
 			}
 			if (e.getSlot() != e.getRawSlot()) {
 				if (e.isShiftClick() || e.getSlot() == e.getWhoClicked().getInventory().getHeldItemSlot()) e.setCancelled(true);
-				Bukkit.broadcastMessage("Slot: " + e.getSlot() + ", book: " + e.getWhoClicked().getInventory().getHeldItemSlot());
-				return;	// Don't Cancel
+				return;
 			}
 			
 			// Warp Page Clicked
 			e.setCancelled(true);
 			
-			warpPageClicked((Player) e.getWhoClicked(), e.getCurrentItem());
+			if (RECOGNIZED_CLICK_TYPES.contains(e.getClick())) warpPageClicked((Player) e.getWhoClicked(), e.getCurrentItem());
 			return;
 		}
 		
@@ -223,6 +227,4 @@ public class WarpBook implements Listener {
 		p.setLevel(p.getLevel() - cost);
 		p.teleport(loc);
 	}
-	
-	
 }
