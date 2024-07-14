@@ -35,6 +35,7 @@ public final class WarpBooks extends JavaPlugin {
     @Override
     public void onEnable() {
         singleton = this;
+        init();
         
         idKey = new NamespacedKey(this, "id");
         pageCraftkey = new NamespacedKey(this, "pageCraftRecipeKey");
