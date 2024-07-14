@@ -91,17 +91,21 @@ public class WarpPage implements Listener {
 		
 		String name = Objects.requireNonNull(page.getItemMeta()).getDisplayName();
 		// ggf.: Split these pages up into one and multiple
+		
+		ItemStack remaining = null;
 		if (page.getAmount() > 1) {
-			ItemStack remaining = new ItemStack(page);
+			remaining = new ItemStack(page);
 			remaining.setAmount(page.getAmount() - 1);
 			page.setAmount(1);
-			
-			ItemMeta meta = page.getItemMeta();
-			assert meta != null;
-			meta.setLore(Collections.singletonList(name));
-			meta.setDisplayName("temp-page::non-dup");
-			page.setItemMeta(meta);
-			
+		}
+		
+		ItemMeta meta = page.getItemMeta();
+		assert meta != null;
+		meta.setLore(Collections.singletonList(name));
+		meta.setDisplayName("temp-page::non-dup");
+		page.setItemMeta(meta);
+		
+		if (remaining != null) {
 			HashMap<Integer, ItemStack> items = p.getInventory().addItem(remaining);
 			for (ItemStack value : items.values()) {
 				p.getWorld().dropItem(p.getLocation(), value);
@@ -219,6 +223,9 @@ public class WarpPage implements Listener {
 		if (!isWarpPage(page)) return;
 		ItemMeta meta = page.getItemMeta();
 		if (meta == null) return;
+		if (meta.hasLore() && !Objects.requireNonNull(meta.getLore()).isEmpty()) {
+			meta.setDisplayName(meta.getLore().get(0));
+		}
 		meta.setLore(Collections.singletonList(itemLore));
 		page.setItemMeta(meta);
 	}
