@@ -4,6 +4,8 @@ import net.justonedev.mc.warpbooks.resourcepack.Resourcepack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,11 +18,14 @@ public final class WarpBooks extends JavaPlugin {
     private static WarpBooks singleton;
     public static final Material PLUGIN_MATERIAL = Material.BLACK_DYE, FRAGMENT_MATERIAL = Material.FLINT_AND_STEEL;
     
+    public static ItemStack PLACEHOLDER, UPGRADE;
+    
     // Recipe: Paper + Ender pearl for pages
     
     public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
     public static int LevelCostPerTeleport = 3, LevelCostPerTeleportWorlds = 5;
-    public static float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 2.8f;
+    public static final float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 2.8f;
+    public static final float teleportCooldown = defaultTeleportCooldown;
     
     public static final int WARP_SLOTS = 45;
     
@@ -72,5 +77,13 @@ public final class WarpBooks extends JavaPlugin {
         File f = new File(singleton.getDataFolder() + "/warpbooks");
         if (!f.exists()) f.mkdirs();
         return f;
+    }
+    
+    private static void init() {
+        PLACEHOLDER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta meta = PLACEHOLDER.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName(" ");
+        PLACEHOLDER.setItemMeta(meta);
     }
 }

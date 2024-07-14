@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 
@@ -24,6 +25,13 @@ public class Fragment implements Listener {
 		meta.setDisplayName("§3Warp Fragment");
 		meta.setCustomModelData(2000000000);
 		warpFragment.setItemMeta(meta);
+		
+		WarpBooks.UPGRADE = new ItemStack(warpFragment);
+		meta  = warpFragment.getItemMeta();
+		assert meta != null;
+		meta.setDisplayName("§5Upgrade Warpbook");
+		meta.setLore(Collections.singletonList("§7Elder Warpbooks provide free teleports."));
+		WarpBooks.UPGRADE.setItemMeta(meta);
 	}
 	
 	public static boolean isFragment(ItemStack item) {

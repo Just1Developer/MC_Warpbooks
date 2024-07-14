@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import net.justonedev.mc.warpbooks.upgrade.Upgrade;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +20,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -135,7 +137,7 @@ public class WarpBook implements Listener {
 		Inventory bookInv = Bukkit.createInventory(null, WarpBooks.WARP_SLOTS + 9, "Edit Warpbook");
 		bookInv.setContents(WarpSaver.loadWarpsInventoryExact(uuid));
 		
-		if(isNormal) bookInv.setItem(4, new ItemStack(Fragment.warpFragment));	// Todo display name. This one is: Upgrade
+		if(isNormal) bookInv.setItem(4, new ItemStack(WarpBooks.UPGRADE));
 		player.openInventory(bookInv);
 	}
 	
@@ -149,11 +151,12 @@ public class WarpBook implements Listener {
 	
 	
 	
-	// --------------------- INVENTORY CLICK -
+	// --------------------- INVENTORY CLICK ---------------------
 	
 	
 	private static final List<ClickType> NORMAL_CLICK_TYPES = Arrays.asList(ClickType.LEFT, ClickType.SHIFT_LEFT, ClickType.RIGHT, ClickType.SHIFT_RIGHT, ClickType.MIDDLE);
 	private static final List<ClickType> RECOGNIZED_CLICK_TYPES = Collections.singletonList(ClickType.LEFT);
+	HashMap<UUID, Long> teleportCooldown = new HashMap<>();
 	
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
@@ -182,6 +185,7 @@ public class WarpBook implements Listener {
 			if (RECOGNIZED_CLICK_TYPES.contains(e.getClick())) warpPageClicked((Player) e.getWhoClicked(), e.getCurrentItem());
 			return;
 		}
+		if (lowercase.contains("upgrade")) return;
 		
 		
 		// The Edit Warpbook Inventory
@@ -200,6 +204,10 @@ public class WarpBook implements Listener {
 		
 		if (e.getRawSlot() < 9 || e.getClick() == ClickType.SWAP_OFFHAND || e.getClick() == ClickType.UNKNOWN) {
 			e.setCancelled(true);
+			if (e.getRawSlot() == 4) {
+				// Clicked the upgrade
+				Upgrade.openUpgrader((Player) e.getWhoClicked());
+			}
 			return;
 		}
 		
@@ -268,7 +276,6 @@ public class WarpBook implements Listener {
 			}
 			
 			e.setCancelled(true);
-			return;
 		}
 		
 		// Unhandled (on purpose, not relevant): MIDDLE, CREATIVE, WINDOW_BORDER_LEFT, WINDOW_BORDER_RIGHT
@@ -293,6 +300,8 @@ public class WarpBook implements Listener {
 			}
 		}
 		
+		if (lowercase.contains("upgrade")) return;
+		
 		if (WarpPage.isSetWarpPage(e.getCursor())) return;
 		for (int slot : e.getRawSlots()) {
 			// Allow Set Warp Pages
@@ -316,6 +325,11 @@ public class WarpBook implements Listener {
 			return;
 		}
 		
+		if (teleportCooldown.getOrDefault(p.getUniqueId(), 0L) > System.currentTimeMillis()) {
+			return;
+		}
+		
+		teleportCooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (1000 * WarpBooks.teleportCooldown));
 		p.setLevel(p.getLevel() - cost);
 		p.teleport(loc);
 	}

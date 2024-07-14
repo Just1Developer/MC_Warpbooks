@@ -61,7 +61,7 @@ public final class WarpSaver {
 		}
 		
 		for (int i = 0; i < 9; i++) {
-			warps[i] = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+			warps[i] = WarpBooks.PLACEHOLDER;
 		}
 		
 		return warps;
