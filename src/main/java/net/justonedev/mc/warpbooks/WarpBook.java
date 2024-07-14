@@ -4,11 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -62,6 +65,12 @@ public class WarpBook implements Listener {
 		return book;
 	}
 	
+	public static String getWarpBookUUID(ItemStack warpBook) {
+		ItemMeta meta = warpBook.getItemMeta();
+		assert meta != null;
+		return meta.getPersistentDataContainer().get(WarpBooks.idKey, PersistentDataType.STRING);
+	}
+	
 	// 100 xp level + like 1-3 netherite + possession of the dragon egg = upgraded warp book
 	
 	public static ItemStack getUpgraded(ItemStack warpBook) {
@@ -91,23 +100,41 @@ public class WarpBook implements Listener {
 		Bukkit.broadcastMessage("Warpbook! LeveL: §e" + level);
 		assert book != null;
 		// Yes, it's long. It's basically asserted that warp books have thad id tag, so we get it and parse the UUID
-		UUID uuid;
+		String uuid;
 		try {
-			uuid = UUID.fromString(Objects.requireNonNull(Objects.requireNonNull(book.getItemMeta())
-					.getPersistentDataContainer().get(WarpBooks.idKey, PersistentDataType.STRING)));
+			uuid = Objects.requireNonNull(Objects.requireNonNull(book.getItemMeta())
+					.getPersistentDataContainer().get(WarpBooks.idKey, PersistentDataType.STRING));
 		} catch (Exception ignored) {
 			return;
 		}
 		
-		Bukkit.broadcastMessage("uuid: §b" + uuid.toString());
+		if (e.getPlayer().isSneaking()) openWarpBookEditor(e.getPlayer(), uuid, level == 1);
+		else openWarpBook(e.getPlayer(), uuid);
 	}
 	
-	private void openWarpBook(Player player) {
-	
+	private void openWarpBook(Player player, String uuid) {
+		Inventory bookInv = Bukkit.createInventory(null, WarpBooks.WARP_SLOTS, "Warpbook");
+		List<ItemStack> warps = WarpSaver.loadWarps(uuid);
+		for (ItemStack warp : warps) {
+			bookInv.addItem(warp);
+		}
+		player.openInventory(bookInv);
 	}
 	
-	private void openWarpBookEditor(Player player) {
+	private void openWarpBookEditor(Player player, String uuid, boolean isNormal) {
+		Inventory bookInv = Bukkit.createInventory(null, WarpBooks.WARP_SLOTS + 9, "Edit Warpbook");
+		bookInv.setContents(WarpSaver.loadWarpsInventoryExact(uuid));
+		
+		if(isNormal) bookInv.setItem(4, new ItemStack(Fragment.warpFragment));	// Todo display name. This one is: Upgrade
+		player.openInventory(bookInv);
+	}
 	
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent e) {
+		if (!e.getView().getTitle().contains("Edit Warpbook")) return;
+		ItemStack book = e.getPlayer().getInventory().getItemInMainHand();
+		String uuid = getWarpBookUUID(book);
+		WarpSaver.saveWarps(uuid, e.getInventory().getContents());
 	}
 	
 }

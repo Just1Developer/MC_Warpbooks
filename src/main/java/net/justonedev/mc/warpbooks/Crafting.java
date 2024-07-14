@@ -21,7 +21,6 @@ public class Crafting implements Listener {
 		
 		Bukkit.addRecipe(craftingRecipe);
 		WarpBooks.log("Added the warp page crafting recipe");
-		Bukkit.broadcastMessage("§eItem: " + craftingRecipe.getResult());
 	}
 	
 	// Layout:
@@ -65,15 +64,42 @@ public class Crafting implements Listener {
 	public void preventCrafting(PrepareItemCraftEvent e) {
 		// Top to Bottom, Left to Right. Null if empty
 		ItemStack[] items = e.getInventory().getMatrix();
+		
+		ItemStack page = null;
+		int enderPearlCount = 0;
+		
 		for (ItemStack item : items) {
-			if (item == null || item.getType() != WarpBooks.PLUGIN_MATERIAL) continue;
+			if (item == null) continue;
+			if (item.getType() != WarpBooks.PLUGIN_MATERIAL) {
+				if (item.getType() == Material.ENDER_PEARL && enderPearlCount == 0) {
+					enderPearlCount = item.getAmount();
+				} else {
+					e.getInventory().setResult(null);
+					return;
+				}
+			}
 			
-			// Prevent Crafting with Warp Items
+			// Prevent Crafting with Warp Items, except for duplicating warp pages
 			if (item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).hasCustomModelData() && item.getItemMeta().getCustomModelData() != 0) {
+				
+				if (WarpPage.isWarpPage(item) && page == null) {
+					page = item;
+					continue;
+				}
+				
 				e.getInventory().setResult(null);
 				return;
 			}
 		}
+		
+		if (enderPearlCount == 0 || page == null) {
+			e.getInventory().setResult(null);
+			return;
+		}
+		
+		ItemStack result = new ItemStack(page);
+		result.setAmount(enderPearlCount + 1);
+		e.getInventory().setResult(result);
 	}
 	
 }
