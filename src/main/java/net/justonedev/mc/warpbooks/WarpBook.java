@@ -109,7 +109,6 @@ public class WarpBook implements Listener {
 		ItemStack book = e.getItem();
 		int level = getWarpBookLevel(book);
 		if (level == 0) return;
-		Bukkit.broadcastMessage("Warpbook! LeveL: §e" + level);
 		assert book != null;
 		// Yes, it's long. It's basically asserted that warp books have thad id tag, so we get it and parse the UUID
 		String uuid;
@@ -196,6 +195,11 @@ public class WarpBook implements Listener {
 		// 2. The top row of the edit menu cannot be modified
 		// 3. The other rows of the warp book must only contain set warp pages.
 		
+		// Here are the default (empty) values, when nothing is there:
+		// Clicked: null
+		// Cursor: AIR
+		// HotbarItem: null
+		
 		ItemStack cursor = e.getCursor();
 		ItemStack clicked = e.getCurrentItem();
 		boolean clickedOwnInv = e.getRawSlot() != e.getSlot();
@@ -204,7 +208,7 @@ public class WarpBook implements Listener {
 		
 		if (e.getRawSlot() < 9 || e.getClick() == ClickType.SWAP_OFFHAND || e.getClick() == ClickType.UNKNOWN) {
 			e.setCancelled(true);
-			if (e.getRawSlot() == 4) {
+			if (e.getRawSlot() == 4 && Fragment.isFragment(clicked) && WarpBooks.enableUpgrading) {
 				// Clicked the upgrade
 				Upgrade.openUpgrader((Player) e.getWhoClicked());
 			}
@@ -217,19 +221,70 @@ public class WarpBook implements Listener {
 		}
 		
 		if (e.getClick() == ClickType.SHIFT_LEFT || e.getClick() == ClickType.SHIFT_RIGHT) {
-			if (clickedOwnInv && !WarpPage.isSetWarpPage(clicked)) e.setCancelled(true);
-			return;
+			if (clickedOwnInv && !WarpPage.isSetWarpPage(clicked)) { e.setCancelled(true); return; }
+			if (!clickedOwnInv) return;		// Transferred something out of warp book, irrelevant for duplicates
+			if (clicked == null) return;		// Nothing clicked
+			
+			boolean contains = false;
+			for (int i = 9; i < e.getView().getTopInventory().getSize() && !contains; ++i) {
+				if (clicked.isSimilar(e.getView().getTopInventory().getItem(i))) contains = true;	// Already inside, inv.contains(add) doesn't quite work
+			}
+			
+			if (contains) {
+				e.setCancelled(true);
+				return;
+			}
+			
+			if (clicked.getAmount() == 1) return;
+			e.setCancelled(true);
+			ItemStack add = new ItemStack(clicked);
+			add.setAmount(1);
+			
+			HashMap<Integer, ItemStack> rest = e.getView().getTopInventory().addItem(add);
+			if (!rest.isEmpty()) return;	// Item not added: Full Inventory?
+			clicked.setAmount(clicked.getAmount() - 1);
 		}
 		
 		if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.RIGHT) {
-			if (!clickedOwnInv && !(WarpPage.isSetWarpPage(cursor) || noCursor)) e.setCancelled(true);
-			return;
+			
+			Bukkit.broadcastMessage("clicked own: " + clickedOwnInv + ", noCursor: " + noCursor + ", clicked: " + clicked);
+			
+			if (!clickedOwnInv && !(WarpPage.isSetWarpPage(cursor) || noCursor))  { e.setCancelled(true); return; }
+			if (noCursor) return;	// Picked up something, doesn't matter when checking for multiple pages
+			if (clickedOwnInv) return;
+			
+			Bukkit.broadcastMessage("1");
+			
+			if (clicked == null) {
+				
+				boolean contains = false;
+				for (int i = 9; i < e.getView().getTopInventory().getSize() && !contains; ++i) {
+					if (cursor.isSimilar(e.getView().getTopInventory().getItem(i))) contains = true;	// Already inside, inv.contains(add) doesn't quite work
+				}
+				
+				if (contains) {
+					e.setCancelled(true);
+					return;
+				}
+				
+				if (cursor.getAmount() > 1) {
+					e.setCancelled(true);
+					cursor.setAmount(cursor.getAmount() - 1);
+					ItemStack newItem = new ItemStack(cursor);
+					newItem.setAmount(1);
+					e.getInventory().setItem(e.getSlot(), newItem);
+				}
+				// Else: Cancel if they're similar (same item, different amount), as they'd stack
+			} else if (clicked.isSimilar(cursor)) e.setCancelled(true);
 		}
 		
 		if (e.getClick() == ClickType.NUMBER_KEY) {
-			if (bookSlot == e.getHotbarButton()) e.setCancelled(true);
-			if (!clickedOwnInv && !WarpPage.isSetWarpPage(e.getWhoClicked().getInventory().getItem(e.getHotbarButton()))) e.setCancelled(true);
-			return;
+			if (bookSlot == e.getHotbarButton())  { e.setCancelled(true); return; }
+			ItemStack hotbarItem = e.getWhoClicked().getInventory().getItem(e.getHotbarButton());
+			Bukkit.broadcastMessage("Hotbaritem: " + hotbarItem);
+			if (!clickedOwnInv && !(WarpPage.isSetWarpPage(hotbarItem) || hotbarItem == null || hotbarItem.getType() == Material.AIR)) { e.setCancelled(true); return; }
+			
+			
 		}
 		
 		if (e.getClick() == ClickType.DOUBLE_CLICK) {
@@ -277,8 +332,13 @@ public class WarpBook implements Listener {
 			
 			e.setCancelled(true);
 		}
+		if (e.isCancelled()) return;
 		
 		// Unhandled (on purpose, not relevant): MIDDLE, CREATIVE, WINDOW_BORDER_LEFT, WINDOW_BORDER_RIGHT
+		
+		// Now: Handle multiple pages
+		
+		//if ()
 	}
 	
 	@EventHandler

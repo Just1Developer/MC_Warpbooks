@@ -30,6 +30,7 @@ public final class WarpBooks extends JavaPlugin {
     public static final int WARP_SLOTS = 45;
     
     // Resource pack stuff
+    static boolean enableUpgrading = true;     // Todo make true once pack is set
     static boolean useResourcePack = false;     // Todo make true once pack is set
     
     @Override

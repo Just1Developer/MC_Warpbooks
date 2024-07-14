@@ -92,7 +92,7 @@ public class Crafting implements Listener {
 			}
 		}
 		
-		if (enderPearlCount == 0 || page == null) {
+		if (enderPearlCount != 1 || page == null || page.getAmount() != 1) {
 			e.getInventory().setResult(null);
 			return;
 		}
