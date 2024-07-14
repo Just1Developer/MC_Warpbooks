@@ -152,7 +152,7 @@ public class WarpBook implements Listener {
 	// --------------------- INVENTORY CLICK -
 	
 	
-	private static final List<ClickType> NORMAL_CLICK_TYPES = Arrays.asList(ClickType.LEFT, ClickType.SHIFT_LEFT, ClickType.RIGHT, ClickType.SHIFT_RIGHT);
+	private static final List<ClickType> NORMAL_CLICK_TYPES = Arrays.asList(ClickType.LEFT, ClickType.SHIFT_LEFT, ClickType.RIGHT, ClickType.SHIFT_RIGHT, ClickType.MIDDLE);
 	private static final List<ClickType> RECOGNIZED_CLICK_TYPES = Collections.singletonList(ClickType.LEFT);
 	
 	@EventHandler
@@ -187,6 +187,91 @@ public class WarpBook implements Listener {
 		// The Edit Warpbook Inventory
 		
 		
+		// Allowed Clicks: Everything, basically. Them's the rules:
+		// 1. The book's slot cannot be modified
+		// 2. The top row of the edit menu cannot be modified
+		// 3. The other rows of the warp book must only contain set warp pages.
+		
+		ItemStack cursor = e.getCursor();
+		ItemStack clicked = e.getCurrentItem();
+		boolean clickedOwnInv = e.getRawSlot() != e.getSlot();
+		boolean noCursor = cursor == null || cursor.getType() == Material.AIR;
+		int bookSlot = e.getWhoClicked().getInventory().getHeldItemSlot();
+		
+		if (e.getRawSlot() < 9 || e.getClick() == ClickType.SWAP_OFFHAND || e.getClick() == ClickType.UNKNOWN) {
+			e.setCancelled(true);
+			return;
+		}
+		
+		if (e.getClick() == ClickType.DROP || e.getClick() == ClickType.CONTROL_DROP) {
+			if (clickedOwnInv && e.getSlot() == bookSlot) e.setCancelled(true);
+			return;
+		}
+		
+		if (e.getClick() == ClickType.SHIFT_LEFT || e.getClick() == ClickType.SHIFT_RIGHT) {
+			if (clickedOwnInv && !WarpPage.isSetWarpPage(clicked)) e.setCancelled(true);
+			return;
+		}
+		
+		if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.RIGHT) {
+			if (!clickedOwnInv && !(WarpPage.isSetWarpPage(cursor) || noCursor)) e.setCancelled(true);
+			return;
+		}
+		
+		if (e.getClick() == ClickType.NUMBER_KEY) {
+			if (bookSlot == e.getHotbarButton()) e.setCancelled(true);
+			if (!clickedOwnInv && !WarpPage.isSetWarpPage(e.getWhoClicked().getInventory().getItem(e.getHotbarButton()))) e.setCancelled(true);
+			return;
+		}
+		
+		if (e.getClick() == ClickType.DOUBLE_CLICK) {
+			// Custom pick-up
+			// Custom Double Click Implementation:
+			// - The slot (e.getCurrentItem()) is irrelevant
+			// - The Cursor is what was picked up
+			// - The Cursor is never null, just AIR or an Item. getCurrentItem() can be null.
+			// - The Cursor Item is then filled by all contents
+			
+			assert cursor != null;
+			if(cursor.getType().isAir()) return;	// :) if event is cancelled or something
+			
+			Inventory inv = e.getView().getTopInventory();
+			for(int i = 9; i < inv.getSize(); ++i) {
+				// Obv can't fill up when max stack size is 1
+				if (cursor.getMaxStackSize() == 1 || cursor.getAmount() == cursor.getMaxStackSize()) break;
+				
+				ItemStack slotItem = inv.getItem(i);
+				if(slotItem == null || slotItem.getType() == Material.AIR) continue;
+				if(!slotItem.getType().equals(cursor.getType())) continue;
+				if (slotItem.isSimilar(cursor)) continue;
+				
+				// Lets fill this bad boy up
+				int subtract = Math.min(cursor.getMaxStackSize() - cursor.getAmount(), slotItem.getAmount());
+				slotItem.setAmount(slotItem.getAmount() - subtract);
+				cursor.setAmount(cursor.getAmount() + subtract);
+			}
+			
+			inv = e.getView().getBottomInventory();
+			for(int i = 9; i < inv.getSize(); ++i) {
+				// Obv can't fill up when max stack size is 1
+				if (cursor.getMaxStackSize() == 1 || cursor.getAmount() == cursor.getMaxStackSize()) break;
+				
+				ItemStack slotItem = inv.getItem(i);
+				if(slotItem == null || slotItem.getType() == Material.AIR) continue;
+				if(!slotItem.getType().equals(cursor.getType())) continue;
+				if (slotItem.isSimilar(cursor)) continue;
+				
+				// Lets fill this bad boy up
+				int subtract = Math.min(cursor.getMaxStackSize() - cursor.getAmount(), slotItem.getAmount());
+				slotItem.setAmount(slotItem.getAmount() - subtract);
+				cursor.setAmount(cursor.getAmount() + subtract);
+			}
+			
+			e.setCancelled(true);
+			return;
+		}
+		
+		// Unhandled (on purpose, not relevant): MIDDLE, CREATIVE, WINDOW_BORDER_LEFT, WINDOW_BORDER_RIGHT
 	}
 	
 	@EventHandler
@@ -208,7 +293,14 @@ public class WarpBook implements Listener {
 			}
 		}
 		
-		// Todo the warp book edit inventory
+		if (WarpPage.isSetWarpPage(e.getCursor())) return;
+		for (int slot : e.getRawSlots()) {
+			// Allow Set Warp Pages
+			if (slot < e.getInventory().getSize()) {
+				e.setCancelled(true);
+				return;
+			}
+		}
 	}
 	
 	public void warpPageClicked(Player p, ItemStack item) {

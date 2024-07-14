@@ -46,6 +46,10 @@ public class WarpPage implements Listener {
 		return WarpBook.isWarpItem(item, warpPage);
 	}
 	
+	public static boolean isSetWarpPage(ItemStack item) {
+		return WarpBook.isWarpItem(item, warpPage) && hasLocation(item);
+	}
+	
 	public static Location getLocation(ItemStack warpPage) {
 		if (warpPage == null) return null;
 		if (warpPage.getItemMeta() == null) return null;
