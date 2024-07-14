@@ -1,16 +1,22 @@
 package net.justonedev.mc.warpbooks;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -136,5 +142,87 @@ public class WarpBook implements Listener {
 		String uuid = getWarpBookUUID(book);
 		WarpSaver.saveWarps(uuid, e.getInventory().getContents());
 	}
+	
+	
+	
+	// --------------------- INVENTORY CLICK -
+	
+	
+	private static final List<ClickType> RECOGNIZED_CLICK_TYPES = Arrays.asList(ClickType.LEFT, ClickType.SHIFT_LEFT);
+	
+	@EventHandler
+	public void onInventoryClick(InventoryClickEvent e) {
+		String lowercase = e.getView().getTitle().toLowerCase();
+		if (!lowercase.contains("warpbook") && !lowercase.contains("warp book")) return;
+		
+		if (!(e.getWhoClicked() instanceof Player)) {
+			e.setCancelled(true);
+			return;
+		}
+		
+		if (!lowercase.contains("edit")) {
+			
+			if (!RECOGNIZED_CLICK_TYPES.contains(e.getClick())) {
+				e.setCancelled(true);
+				return;
+			}
+			if (e.getSlot() != e.getRawSlot()) {
+				if (e.isShiftClick() || e.getSlot() == e.getWhoClicked().getInventory().getHeldItemSlot()) e.setCancelled(true);
+				Bukkit.broadcastMessage("Slot: " + e.getSlot() + ", book: " + e.getWhoClicked().getInventory().getHeldItemSlot());
+				return;	// Don't Cancel
+			}
+			
+			// Warp Page Clicked
+			e.setCancelled(true);
+			
+			warpPageClicked((Player) e.getWhoClicked(), e.getCurrentItem());
+			return;
+		}
+		
+		
+		// The Edit Warpbook Inventory
+		
+		
+	}
+	
+	@EventHandler
+	public void InventoryDrag(InventoryDragEvent e) {
+		String lowercase = e.getView().getTitle().toLowerCase();
+		if (!lowercase.contains("warpbook") && !lowercase.contains("warp book")) return;
+		
+		if (!(e.getWhoClicked() instanceof Player)) {
+			e.setCancelled(true);
+			return;
+		}
+		
+		if (!lowercase.contains("edit")) {
+			for (int slot : e.getRawSlots()) {
+				if (slot < e.getInventory().getSize()) {
+					e.setCancelled(true);
+					return;
+				}
+			}
+		}
+		
+		// Todo the warp book edit inventory
+	}
+	
+	public void warpPageClicked(Player p, ItemStack item) {
+		if (!WarpPage.isWarpPage(item)) return;
+		Location loc = WarpPage.getLocation(item);
+		if (loc == null) return;
+		
+		int cost = WarpBooks.LevelCostPerTeleport;
+		if (!Objects.equals(loc.getWorld(), p.getWorld())) cost = WarpBooks.LevelCostPerTeleportWorlds;
+		
+		if (p.getLevel() < cost) {
+			p.sendMessage(String.format("§cYou don't have enough XP Levels to teleport. (§e%d §crequired, you have §e%d§c)", cost, p.getLevel()));
+			return;
+		}
+		
+		p.setLevel(p.getLevel() - cost);
+		p.teleport(loc);
+	}
+	
 	
 }
