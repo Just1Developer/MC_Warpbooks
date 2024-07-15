@@ -162,6 +162,7 @@ public class WarpBook implements Listener {
 	public void onInventoryClick(InventoryClickEvent e) {
 		String lowercase = e.getView().getTitle().toLowerCase();
 		if (!lowercase.contains("warpbook") && !lowercase.contains("warp book")) return;
+		if (lowercase.contains("upgrade")) return;
 		
 		if (!(e.getWhoClicked() instanceof Player)) {
 			e.setCancelled(true);
@@ -185,7 +186,6 @@ public class WarpBook implements Listener {
 			if (RECOGNIZED_CLICK_TYPES.contains(e.getClick())) warpPageClicked((Player) e.getWhoClicked(), e.getCurrentItem());
 			return;
 		}
-		if (lowercase.contains("upgrade")) return;
 		
 		
 		// The Edit Warpbook Inventory

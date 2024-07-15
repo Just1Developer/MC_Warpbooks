@@ -3,6 +3,7 @@ package net.justonedev.mc.warpbooks.upgrade;
 import net.justonedev.mc.warpbooks.Fragment;
 import net.justonedev.mc.warpbooks.WarpBook;
 import net.justonedev.mc.warpbooks.WarpBooks;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -12,13 +13,18 @@ import java.util.Objects;
 
 public class EmptyBarSlot {
 
-	public static final String itemName = "§81x " + Objects.requireNonNull(new ItemStack(Material.NETHERITE_INGOT).getItemMeta()).getDisplayName();
+	public static String itemName = "";
 	public static final String itemLore = "§7Add here";
 	public static final String fragmentName = "§81x " + Fragment.warpFragmentName;
 	public static final String bookName = "§81x " + WarpBook.warpBookName;
 	public static ItemStack emptyIngot, emptyFragment, emptyBook;
 
 	public static void init() {
+		
+		String name = Objects.requireNonNull(new ItemStack(Material.NETHERITE_INGOT).getItemMeta()).getDisplayName();
+		if (name.isEmpty()) name = "Netherite Ingot";
+		itemName = "§81x " + name;
+		
 		emptyIngot = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		ItemMeta meta = emptyIngot.getItemMeta();
 		assert meta != null;

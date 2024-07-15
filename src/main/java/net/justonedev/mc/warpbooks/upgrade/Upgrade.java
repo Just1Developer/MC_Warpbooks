@@ -40,29 +40,38 @@ public class Upgrade implements Listener {
 	private static final int FRAGMENT_SLOT = startRow + 25;
 
 	private static final List<Integer> ALL_SLOTS = Arrays.asList(BOOK_SLOT, XP_SLOT, NETHERITE_SLOTS.get(0), NETHERITE_SLOTS.get(1), NETHERITE_SLOTS.get(2), FRAGMENT_SLOT);
-
-
+	
+	
 	@EventHandler
+	@SuppressWarnings("deprecation")
 	public void onInventoryClick(InventoryClickEvent e) {
 		String lowercase = e.getView().getTitle().toLowerCase();
 		if (!lowercase.contains("warpbook") && !lowercase.contains("warp book")) return;
+		Bukkit.broadcastMessage("§e1" + e.isCancelled());
 
 		if (!(e.getWhoClicked() instanceof Player)) {
+			Bukkit.broadcastMessage("§e2" + e.isCancelled());
 			e.setCancelled(true);
 			return;
 		}
 		
 		boolean clickedOwnInv = e.getRawSlot() != e.getSlot();
+		Bukkit.broadcastMessage("§e3" + e.isCancelled());
 
 		if (!RECOGNIZED_CLICK_TYPES.contains(e.getClick())) {
 			if(!clickedOwnInv || e.getClick().isShiftClick()) e.setCancelled(true);
+			Bukkit.broadcastMessage("§e3.5" + e.isCancelled());
 			return;
 		}
 
+		Bukkit.broadcastMessage("§e" + clickedOwnInv);
+		Bukkit.broadcastMessage("§e4" + e.isCancelled());
 		if (!clickedOwnInv && !ALL_SLOTS.contains(e.getRawSlot())) {
 			e.setCancelled(true);
+			Bukkit.broadcastMessage("§e4.5" + e.isCancelled());
 			return;
 		}
+		Bukkit.broadcastMessage("§e5" + e.isCancelled());
 
 		// The default (empty) values, when nothing is there:
 		// Clicked: null
@@ -71,6 +80,7 @@ public class Upgrade implements Listener {
 		ItemStack cursor = e.getCursor();
 		ItemStack clicked = e.getCurrentItem();
 		boolean noCursor = cursor == null || cursor.getType() == Material.AIR;
+		Bukkit.broadcastMessage("0");
 
 		if (e.getClick().isShiftClick()) {
 			if (!clickedOwnInv) {
@@ -152,14 +162,17 @@ public class Upgrade implements Listener {
 		// If cursor is valid item and the slot is empty, then allow it
 		// Otherwise, don't
 		// Except for if it's a pickup
+		Bukkit.broadcastMessage("1");
+		Bukkit.broadcastMessage("§e6" + e.isCancelled());
 		
 		if (clickedOwnInv) return;
 		
-		/* L8r
-		boolean isIngot = isLegit(clicked, Material.NETHERITE_INGOT);
-		boolean isFragment = !isIngot && Fragment.isCompleteFragment(clicked);
-		boolean isBook = !isIngot && !isFragment && WarpBook.isWarpBook(clicked);
-		*/
+		Bukkit.broadcastMessage("2");
+		
+		boolean isClickedIngot = isLegit(clicked, Material.NETHERITE_INGOT);
+		boolean isClickedFragment = !isClickedIngot && Fragment.isCompleteFragment(clicked);
+		boolean isClickedBook = !isClickedIngot && !isClickedFragment && WarpBook.isWarpBook(clicked);
+		
 		boolean isIngot = isLegit(cursor, Material.NETHERITE_INGOT);
 		boolean isFragment = !isIngot && Fragment.isCompleteFragment(cursor);
 		boolean isBook = !isIngot && !isFragment && WarpBook.isWarpBook(cursor);
@@ -167,15 +180,47 @@ public class Upgrade implements Listener {
 		boolean isValidCursor = noCursor || (isIngot && NETHERITE_SLOTS.contains(e.getRawSlot()))
 				|| (isFragment && e.getSlot() == FRAGMENT_SLOT) || (isBook && e.getSlot() == BOOK_SLOT);
 		
+		Bukkit.broadcastMessage("3");
 		if (!isValidCursor) {
 			e.setCancelled(true);
 			return;
 		}
+		Bukkit.broadcastMessage("4");
+		
+		boolean isClickedSlotEmpty = clicked == null || (clicked.isSimilar(EmptyBarSlot.emptyIngot))
+				|| (clicked.isSimilar(EmptyBarSlot.emptyFragment)) || (clicked.isSimilar(EmptyBarSlot.emptyBook));
+		
+		Bukkit.broadcastMessage("5");
 		
 		// We know a valid slot was clicked with a valid cursor
 		
-		// Todo real logic
-		e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyFragment);
+		if (isClickedSlotEmpty) {
+			Bukkit.broadcastMessage("§cCancel");
+			e.setCancelled(true); // prevent pickup of placeholders
+			if (noCursor) return;
+			ItemStack newItem = new ItemStack(cursor);
+			newItem.setAmount(1);
+			
+			e.getInventory().setItem(e.getRawSlot(), newItem);	// Validity is confirmed beforehand.
+			cursor.setAmount(cursor.getAmount() - 1);
+			return;
+		}
+		
+		// Clicked slot is not empty.
+		// If we have a cursor
+		if (noCursor) {
+			e.setCancelled(true);
+			e.setCursor(clicked);	// This is marked as deprecated because it can cause inconsistencies. Not a problem in this case.
+			
+			if(NETHERITE_SLOTS.contains(e.getRawSlot())) e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyIngot);
+			else if(e.getSlot() == FRAGMENT_SLOT) e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyFragment);
+			else e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyBook);
+			return;
+		}
+		
+		// If they would stack, cancel. If they can't stack, it won't make a difference since they're similar
+		if (cursor.isSimilar(clicked)) e.setCancelled(true);
+		// Otherwise just let the valid swap happen
 	}
 
 	private static boolean isLegit(ItemStack item, Material material) {
