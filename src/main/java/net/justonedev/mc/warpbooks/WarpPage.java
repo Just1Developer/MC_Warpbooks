@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -71,7 +70,13 @@ public class WarpPage implements Listener {
 	public static boolean hasLocation(ItemStack warpPage) {
 		return getLocation(warpPage) != null;
 	}
-	
+
+	public static void closeAll() {
+		for (Location location : signs.values()) {
+			location.getBlock().setType(Material.AIR);
+		}
+	}
+
 	public WarpPage() {
 		init();
 	}
