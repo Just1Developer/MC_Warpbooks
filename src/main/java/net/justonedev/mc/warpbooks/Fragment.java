@@ -17,12 +17,13 @@ public class Fragment implements Listener {
 	// Durability full => valid fragment for upgrading
 	
 	public static ItemStack warpFragment;
+	public static final String warpFragmentName = "§3Warp Fragment";
 	
 	public static void init() {
 		warpFragment = new ItemStack(WarpBooks.FRAGMENT_MATERIAL, 1);
 		ItemMeta meta = warpFragment.getItemMeta();
 		assert meta != null;
-		meta.setDisplayName("§3Warp Fragment");
+		meta.setDisplayName(warpFragmentName);
 		meta.setCustomModelData(2000000000);
 		warpFragment.setItemMeta(meta);
 		
@@ -40,7 +41,7 @@ public class Fragment implements Listener {
 
 	public static boolean isCompleteFragment(ItemStack item) {
 		if (!isFragment(item)) return false;
-		return Objects.requireNonNull(item.getItemMeta()).getDamage() == 0;
+		return ((Damageable) Objects.requireNonNull(item.getItemMeta())).getDamage() == 0;
 	}
 	
 	public static final float minDur = 0.01f, maxDur = 0.11f;

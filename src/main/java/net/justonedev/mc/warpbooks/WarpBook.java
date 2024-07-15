@@ -30,12 +30,13 @@ public class WarpBook implements Listener {
 	// Todo for upgrading: p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 1.0f); (its a good sound)
 	
 	private static ItemStack warpBook, opWarpBook;
+	public static final String warpBookName = "§bWarp book";
 	
 	private static void init() {
 		warpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		ItemMeta meta = warpBook.getItemMeta();
 		assert meta != null;
-		meta.setDisplayName("§bWarp book");
+		meta.setDisplayName(warpBookName);
 		meta.setCustomModelData(8498);
 		warpBook.setItemMeta(meta);
 		
