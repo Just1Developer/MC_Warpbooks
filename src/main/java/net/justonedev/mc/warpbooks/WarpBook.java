@@ -247,13 +247,9 @@ public class WarpBook implements Listener {
 		
 		if (e.getClick() == ClickType.LEFT || e.getClick() == ClickType.RIGHT) {
 			
-			Bukkit.broadcastMessage("clicked own: " + clickedOwnInv + ", noCursor: " + noCursor + ", clicked: " + clicked);
-			
 			if (!clickedOwnInv && !(WarpPage.isSetWarpPage(cursor) || noCursor))  { e.setCancelled(true); return; }
 			if (noCursor) return;	// Picked up something, doesn't matter when checking for multiple pages
 			if (clickedOwnInv) return;
-			
-			Bukkit.broadcastMessage("1");
 			
 			if (clicked == null) {
 				
@@ -281,10 +277,10 @@ public class WarpBook implements Listener {
 		if (e.getClick() == ClickType.NUMBER_KEY) {
 			if (bookSlot == e.getHotbarButton())  { e.setCancelled(true); return; }
 			ItemStack hotbarItem = e.getWhoClicked().getInventory().getItem(e.getHotbarButton());
-			Bukkit.broadcastMessage("Hotbaritem: " + hotbarItem);
+			
 			if (!clickedOwnInv && !(WarpPage.isSetWarpPage(hotbarItem) || hotbarItem == null || hotbarItem.getType() == Material.AIR)) { e.setCancelled(true); return; }
 			
-			
+			//todo contains check
 		}
 		
 		if (e.getClick() == ClickType.DOUBLE_CLICK) {
@@ -304,9 +300,9 @@ public class WarpBook implements Listener {
 				if (cursor.getMaxStackSize() == 1 || cursor.getAmount() == cursor.getMaxStackSize()) break;
 				
 				ItemStack slotItem = inv.getItem(i);
-				if(slotItem == null || slotItem.getType() == Material.AIR) continue;
-				if(!slotItem.getType().equals(cursor.getType())) continue;
-				if (slotItem.isSimilar(cursor)) continue;
+				if (slotItem == null || slotItem.getType() == Material.AIR) continue;
+				if (!slotItem.getType().equals(cursor.getType())) continue;
+				if (!slotItem.isSimilar(cursor)) continue;
 				
 				// Lets fill this bad boy up
 				int subtract = Math.min(cursor.getMaxStackSize() - cursor.getAmount(), slotItem.getAmount());
@@ -320,9 +316,9 @@ public class WarpBook implements Listener {
 				if (cursor.getMaxStackSize() == 1 || cursor.getAmount() == cursor.getMaxStackSize()) break;
 				
 				ItemStack slotItem = inv.getItem(i);
-				if(slotItem == null || slotItem.getType() == Material.AIR) continue;
-				if(!slotItem.getType().equals(cursor.getType())) continue;
-				if (slotItem.isSimilar(cursor)) continue;
+				if (slotItem == null || slotItem.getType() == Material.AIR) continue;
+				if (!slotItem.getType().equals(cursor.getType())) continue;
+				if (!slotItem.isSimilar(cursor)) continue;
 				
 				// Lets fill this bad boy up
 				int subtract = Math.min(cursor.getMaxStackSize() - cursor.getAmount(), slotItem.getAmount());
