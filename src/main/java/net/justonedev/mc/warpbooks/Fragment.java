@@ -37,6 +37,11 @@ public class Fragment implements Listener {
 	public static boolean isFragment(ItemStack item) {
 		return WarpBook.isWarpItem(item, warpFragment);
 	}
+
+	public static boolean isCompleteFragment(ItemStack item) {
+		if (!isFragment(item)) return false;
+		return Objects.requireNonNull(item.getItemMeta()).getDamage() == 0;
+	}
 	
 	public static final float minDur = 0.01f, maxDur = 0.11f;
 	public static final double CHANCE = 0.03;
