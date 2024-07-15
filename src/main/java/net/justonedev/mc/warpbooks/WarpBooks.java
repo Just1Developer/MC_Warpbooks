@@ -23,6 +23,8 @@ public final class WarpBooks extends JavaPlugin {
     
     // Recipe: Paper + Ender pearl for pages
     
+    public static final int LevelsToUpgrade = 100;
+    
     public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
     public static int LevelCostPerTeleport = 3, LevelCostPerTeleportWorlds = 5;
     public static final float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 2.8f;

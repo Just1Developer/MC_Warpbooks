@@ -2,6 +2,7 @@ package net.justonedev.mc.warpbooks.upgrade;
 
 import net.justonedev.mc.warpbooks.Fragment;
 import net.justonedev.mc.warpbooks.WarpBook;
+import net.justonedev.mc.warpbooks.WarpBooks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,10 +11,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +29,7 @@ public class Upgrade implements Listener {
 		Inventory upgrade = Bukkit.createInventory(null, 54, "Upgrade Warpbook");
 		upgrade.setItem(BOOK_SLOT, EmptyBarSlot.emptyBook);
 		upgrade.setItem(FRAGMENT_SLOT, EmptyBarSlot.emptyFragment);
-		upgrade.setItem(XP_SLOT, new ItemStack(Material.EXPERIENCE_BOTTLE));
+		upgrade.setItem(XP_SLOT, getXP(p));
 		for (int slot : NETHERITE_SLOTS) {
 			upgrade.setItem(slot, EmptyBarSlot.emptyIngot);
 		}
@@ -43,35 +48,27 @@ public class Upgrade implements Listener {
 	
 	
 	@EventHandler
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")	// Our application is okay.
 	public void onInventoryClick(InventoryClickEvent e) {
 		String lowercase = e.getView().getTitle().toLowerCase();
 		if (!lowercase.contains("warpbook") && !lowercase.contains("warp book")) return;
-		Bukkit.broadcastMessage("§e1" + e.isCancelled());
 
 		if (!(e.getWhoClicked() instanceof Player)) {
-			Bukkit.broadcastMessage("§e2" + e.isCancelled());
 			e.setCancelled(true);
 			return;
 		}
 		
 		boolean clickedOwnInv = e.getRawSlot() != e.getSlot();
-		Bukkit.broadcastMessage("§e3" + e.isCancelled());
 
 		if (!RECOGNIZED_CLICK_TYPES.contains(e.getClick())) {
 			if(!clickedOwnInv || e.getClick().isShiftClick()) e.setCancelled(true);
-			Bukkit.broadcastMessage("§e3.5" + e.isCancelled());
 			return;
 		}
 
-		Bukkit.broadcastMessage("§e" + clickedOwnInv);
-		Bukkit.broadcastMessage("§e4" + e.isCancelled());
 		if (!clickedOwnInv && !ALL_SLOTS.contains(e.getRawSlot())) {
 			e.setCancelled(true);
-			Bukkit.broadcastMessage("§e4.5" + e.isCancelled());
 			return;
 		}
-		Bukkit.broadcastMessage("§e5" + e.isCancelled());
 
 		// The default (empty) values, when nothing is there:
 		// Clicked: null
@@ -80,7 +77,6 @@ public class Upgrade implements Listener {
 		ItemStack cursor = e.getCursor();
 		ItemStack clicked = e.getCurrentItem();
 		boolean noCursor = cursor == null || cursor.getType() == Material.AIR;
-		Bukkit.broadcastMessage("0");
 
 		if (e.getClick().isShiftClick()) {
 			if (!clickedOwnInv) {
@@ -111,7 +107,7 @@ public class Upgrade implements Listener {
 				return;
 			}
 			e.setCancelled(true);
-			boolean isIngot = isLegit(clicked, Material.NETHERITE_INGOT);
+			boolean isIngot = isNormalNetheriteBar(clicked);
 			boolean isFragment = !isIngot && Fragment.isCompleteFragment(clicked);
 			boolean isBook = !isIngot && !isFragment && WarpBook.isWarpBook(clicked);
 
@@ -162,40 +158,27 @@ public class Upgrade implements Listener {
 		// If cursor is valid item and the slot is empty, then allow it
 		// Otherwise, don't
 		// Except for if it's a pickup
-		Bukkit.broadcastMessage("1");
-		Bukkit.broadcastMessage("§e6" + e.isCancelled());
 		
 		if (clickedOwnInv) return;
 		
-		Bukkit.broadcastMessage("2");
-		
-		boolean isClickedIngot = isLegit(clicked, Material.NETHERITE_INGOT);
-		boolean isClickedFragment = !isClickedIngot && Fragment.isCompleteFragment(clicked);
-		boolean isClickedBook = !isClickedIngot && !isClickedFragment && WarpBook.isWarpBook(clicked);
-		
-		boolean isIngot = isLegit(cursor, Material.NETHERITE_INGOT);
+		boolean isIngot = isNormalNetheriteBar(cursor);
 		boolean isFragment = !isIngot && Fragment.isCompleteFragment(cursor);
 		boolean isBook = !isIngot && !isFragment && WarpBook.isWarpBook(cursor);
 		
 		boolean isValidCursor = noCursor || (isIngot && NETHERITE_SLOTS.contains(e.getRawSlot()))
 				|| (isFragment && e.getSlot() == FRAGMENT_SLOT) || (isBook && e.getSlot() == BOOK_SLOT);
 		
-		Bukkit.broadcastMessage("3");
 		if (!isValidCursor) {
 			e.setCancelled(true);
 			return;
 		}
-		Bukkit.broadcastMessage("4");
 		
 		boolean isClickedSlotEmpty = clicked == null || (clicked.isSimilar(EmptyBarSlot.emptyIngot))
 				|| (clicked.isSimilar(EmptyBarSlot.emptyFragment)) || (clicked.isSimilar(EmptyBarSlot.emptyBook));
 		
-		Bukkit.broadcastMessage("5");
-		
 		// We know a valid slot was clicked with a valid cursor
 		
 		if (isClickedSlotEmpty) {
-			Bukkit.broadcastMessage("§cCancel");
 			e.setCancelled(true); // prevent pickup of placeholders
 			if (noCursor) return;
 			ItemStack newItem = new ItemStack(cursor);
@@ -223,9 +206,9 @@ public class Upgrade implements Listener {
 		// Otherwise just let the valid swap happen
 	}
 
-	private static boolean isLegit(ItemStack item, Material material) {
+	private static boolean isNormalNetheriteBar(ItemStack item) {
 		if (item == null) return false;
-		if (item.getType() != material) return false;
+		if (item.getType() != Material.NETHERITE_INGOT) return false;
 		if (!item.hasItemMeta()) return true;
 		if (!Objects.requireNonNull(item.getItemMeta()).hasCustomModelData()) return true;
 		return item.getItemMeta().getCustomModelData() == 0;
@@ -233,7 +216,40 @@ public class Upgrade implements Listener {
 
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent e) {
-
+		if (!(e.getPlayer() instanceof Player)) return;
+		Player p = (Player) e.getPlayer();
+		if (!p.getOpenInventory().getTitle().equalsIgnoreCase("upgrade warpbook")) return;
+		
+		// Give all the items
+		List<ItemStack> items = new ArrayList<>();
+		if (e.getInventory().getItem(BOOK_SLOT) != null && !EmptyBarSlot.emptyBook.isSimilar(e.getInventory().getItem(BOOK_SLOT)))
+			items.addAll(p.getInventory().addItem(e.getInventory().getItem(BOOK_SLOT)).values());
+		if (e.getInventory().getItem(FRAGMENT_SLOT) != null && !EmptyBarSlot.emptyFragment.isSimilar(e.getInventory().getItem(FRAGMENT_SLOT)))
+			items.addAll(p.getInventory().addItem(e.getInventory().getItem(FRAGMENT_SLOT)).values());
+		for (int slot : NETHERITE_SLOTS) if (e.getInventory().getItem(slot) != null && !EmptyBarSlot.emptyIngot.isSimilar(e.getInventory().getItem(slot)))
+			items.addAll(p.getInventory().addItem(e.getInventory().getItem(slot)).values());
+		
+		for (ItemStack item : items) {
+			p.getWorld().dropItemNaturally(p.getLocation(), item);
+		}
+	}
+	
+	@EventHandler
+	public void onXPChange(PlayerExpChangeEvent e) {
+		Player p = e.getPlayer();
+		if (!p.getOpenInventory().getTitle().equalsIgnoreCase("upgrade warpbook")) return;
+		p.getOpenInventory().getTopInventory().setItem(XP_SLOT, getXP(p));
+	}
+	
+	private static ItemStack getXP(Player p) {
+		ItemStack xp = new ItemStack(Material.EXPERIENCE_BOTTLE);
+		ItemMeta meta = xp.getItemMeta();
+		assert meta != null;
+		int needed = WarpBooks.LevelsToUpgrade;
+		meta.setDisplayName("§e" + needed + " XP Levels");
+		meta.setLore(Collections.singletonList((p.getLevel() >= needed ? "§a" : "§c") + p.getLevel() + "/" + needed + " Levels"));
+		xp.setItemMeta(meta);
+		return xp;
 	}
 
 }
