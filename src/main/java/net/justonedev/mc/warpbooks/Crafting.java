@@ -74,11 +74,8 @@ public class Crafting implements Listener {
 			if (Fragment.isFragment(item)) return;	// Managed by Fragment class. Only valid combination would be another fragment (or flint and steel). Is both handled
 			
 			if (item.getType() != WarpBooks.PLUGIN_MATERIAL) {
-				if (item.getType() == Material.ENDER_PEARL && enderPearlCount == 0) {
-					enderPearlCount = item.getAmount();
-				} else {
-					e.getInventory().setResult(null);
-					return;
+				if (item.getType() == Material.ENDER_PEARL) {
+					enderPearlCount += item.getAmount();
 				}
 			}
 			
@@ -95,7 +92,8 @@ public class Crafting implements Listener {
 			}
 		}
 		
-		if (enderPearlCount != 1 || page == null || page.getAmount() != 1) {
+		if (page == null) return;
+		if (enderPearlCount != 1 || page.getAmount() != 1) {
 			e.getInventory().setResult(null);
 			return;
 		}
