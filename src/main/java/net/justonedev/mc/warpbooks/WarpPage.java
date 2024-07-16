@@ -61,8 +61,8 @@ public class WarpPage implements Listener {
 					Objects.requireNonNull(data.get(WarpBooks.pageXKey, PersistentDataType.DOUBLE)),
 					Objects.requireNonNull(data.get(WarpBooks.pageYKey, PersistentDataType.DOUBLE)),
 					Objects.requireNonNull(data.get(WarpBooks.pageZKey, PersistentDataType.DOUBLE)),
-					Objects.requireNonNull(data.get(WarpBooks.pagePitchKey, PersistentDataType.FLOAT)),
-					Objects.requireNonNull(data.get(WarpBooks.pageYawKey, PersistentDataType.FLOAT))
+					Objects.requireNonNull(data.get(WarpBooks.pageYawKey, PersistentDataType.FLOAT)),
+					Objects.requireNonNull(data.get(WarpBooks.pagePitchKey, PersistentDataType.FLOAT))
 			);
 		} catch (NullPointerException ignored) { return null; }
 	}
@@ -184,8 +184,8 @@ public class WarpPage implements Listener {
 		meta.getPersistentDataContainer().set(WarpBooks.pageXKey, PersistentDataType.DOUBLE, l.getX());
 		meta.getPersistentDataContainer().set(WarpBooks.pageYKey, PersistentDataType.DOUBLE, l.getY());
 		meta.getPersistentDataContainer().set(WarpBooks.pageZKey, PersistentDataType.DOUBLE, l.getZ());
-		meta.getPersistentDataContainer().set(WarpBooks.pagePitchKey, PersistentDataType.FLOAT, l.getPitch());
 		meta.getPersistentDataContainer().set(WarpBooks.pageYawKey, PersistentDataType.FLOAT, l.getYaw());
+		meta.getPersistentDataContainer().set(WarpBooks.pagePitchKey, PersistentDataType.FLOAT, l.getPitch());
 		meta.setLore(Collections.emptyList());
 		page.setItemMeta(meta);
 	}

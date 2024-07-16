@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -112,6 +113,21 @@ public class Fragment implements Listener {
 		if (Fragment.isFragment(inv.getItem(0)) && !Fragment.isFragment(inv.getItem(1))
 		|| !Fragment.isFragment(inv.getItem(0)) && Fragment.isFragment(inv.getItem(1))) {
 			e.setResult(null);
+		}
+		
+		if (Fragment.isFragment(inv.getItem(0)) && Fragment.isFragment(inv.getItem(1))) {
+			ItemStack item1 = inv.getItem(0), item2 = inv.getItem(1);
+			assert item1 != null; assert item2 != null;
+			assert item1.getItemMeta() != null; assert item2.getItemMeta() != null;
+			Damageable m1 = (Damageable) item1.getItemMeta(), m2 = (Damageable) item2.getItemMeta();
+			
+			ItemStack result = new ItemStack(Objects.requireNonNull(inv.getItem(0)));
+			Damageable meta = (Damageable) result.getItemMeta();
+			assert meta != null;
+			meta.setDamage(64 - (128 - m1.getDamage() - m2.getDamage()));
+			result.setItemMeta(meta);
+			
+			e.setResult(result);
 		}
 	}
 	

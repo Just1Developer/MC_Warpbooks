@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import net.justonedev.mc.warpbooks.config.Config;
 import net.justonedev.mc.warpbooks.resourcepack.Resourcepack;
 import net.justonedev.mc.warpbooks.upgrade.EmptyBarSlot;
 import net.justonedev.mc.warpbooks.upgrade.Upgrade;
@@ -23,11 +24,11 @@ public final class WarpBooks extends JavaPlugin {
     
     // Recipe: Paper + Ender pearl for pages
     
-    public static final int LevelsToUpgrade = 100;
+    public static final int LevelsToUpgrade = 150;
     
     public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
     public static int LevelCostPerTeleport = 3, LevelCostPerTeleportWorlds = 5;
-    public static final float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 2.8f;
+    public static final float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 1.6f;
     public static final float teleportCooldown = defaultTeleportCooldown;
     
     public static final int WARP_SLOTS = 45;
@@ -41,6 +42,7 @@ public final class WarpBooks extends JavaPlugin {
         singleton = this;
         init();
         EmptyBarSlot.init();
+        Config.initialize();
         
         idKey = new NamespacedKey(this, "id");
         pageCraftkey = new NamespacedKey(this, "pageCraftRecipeKey");
@@ -86,6 +88,10 @@ public final class WarpBooks extends JavaPlugin {
         File f = new File(singleton.getDataFolder() + "/warpbooks");
         if (!f.exists()) f.mkdirs();
         return f;
+    }
+    
+    public static File getFolder() {
+        return singleton.getDataFolder();
     }
     
     private static void init() {

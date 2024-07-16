@@ -93,7 +93,7 @@ public class Crafting implements Listener {
 		}
 		
 		if (page == null) return;
-		if (enderPearlCount != 1 || page.getAmount() != 1) {
+		if (enderPearlCount != 1 || page.getAmount() != 1 || !WarpPage.hasLocation(page)) {
 			e.getInventory().setResult(null);
 			return;
 		}
