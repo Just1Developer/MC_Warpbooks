@@ -26,14 +26,23 @@ import java.util.Objects;
 
 public class Upgrade implements Listener {
 
+	private static final String UpgradeTitle = "Upgrade Warpbook";
+	private static final String UpgradedTitle = "Warpbook upgraded";
+	
 	public static void openUpgrader(Player p) {
-		Inventory upgrade = Bukkit.createInventory(null, 54, "Upgrade Warpbook");
+		Inventory upgrade = Bukkit.createInventory(null, 54, UpgradeTitle);
 		upgrade.setItem(BOOK_SLOT, EmptyBarSlot.emptyBook);
 		upgrade.setItem(FRAGMENT_SLOT, EmptyBarSlot.emptyFragment);
 		upgrade.setItem(XP_SLOT, getXP(p));
 		for (int slot : NETHERITE_SLOTS) {
 			upgrade.setItem(slot, EmptyBarSlot.emptyIngot);
 		}
+		p.openInventory(upgrade);
+	}
+	
+	public static void openUpgraded(Player p, ItemStack upgraded) {
+		Inventory upgrade = Bukkit.createInventory(null, 27, UpgradedTitle);
+		upgrade.setItem(13, upgraded);
 		p.openInventory(upgrade);
 	}
 	
@@ -46,16 +55,23 @@ public class Upgrade implements Listener {
 	private static final List<Integer> CONFIRM_SLOTS = Arrays.asList(startRow + 29, startRow + 30, startRow + 31, startRow + 32, startRow + 33);
 	private static final int FRAGMENT_SLOT = startRow + 25;
 
-	private static final List<Integer> ALL_SLOTS = Arrays.asList(BOOK_SLOT, XP_SLOT, NETHERITE_SLOTS.get(0), NETHERITE_SLOTS.get(1), NETHERITE_SLOTS.get(2), FRAGMENT_SLOT);
+	// XP Slot is just a visual info, nothing clickable.
+	private static final List<Integer> ALL_SLOTS = Arrays.asList(BOOK_SLOT, NETHERITE_SLOTS.get(0), NETHERITE_SLOTS.get(1), NETHERITE_SLOTS.get(2), FRAGMENT_SLOT);
 	
 	
 	@EventHandler
 	@SuppressWarnings("deprecation")	// Our application is okay.
 	public void onInventoryClick(InventoryClickEvent e) {
-		String lowercase = e.getView().getTitle().toLowerCase();
-		if (!lowercase.contains("warpbook") && !lowercase.contains("warp book")) return;
+		if (!e.getView().getTitle().equals(UpgradeTitle)) return;
 
 		if (!(e.getWhoClicked() instanceof Player)) {
+			e.setCancelled(true);
+			return;
+		}
+		
+		if (e.getRawSlot() == 4 && WarpBooks.UPGRADE.isSimilar(e.getCurrentItem()) && WarpBooks.enableUpgrading) {
+			// Clicked the upgrade, inventory just opened.
+			// For some reason, this is fired as well. So, cancel it, so we don't keep the warp book when shift clicking
 			e.setCancelled(true);
 			return;
 		}
@@ -72,7 +88,7 @@ public class Upgrade implements Listener {
 			if (!EmptyBarSlot.getReadyItem(true).isSimilar(e.getCurrentItem())) return;
 			ItemStack upgraded = WarpBook.getUpgraded(e.getView().getTopInventory().getItem(BOOK_SLOT));
 			e.getView().getTopInventory().clear();
-			e.getView().getTopInventory().setItem(BOOK_SLOT, upgraded);
+			openUpgraded(((Player) e.getWhoClicked()), upgraded);
 			((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 1.0f);
 			return;
 		}
@@ -237,7 +253,18 @@ public class Upgrade implements Listener {
 	public void onInventoryClose(InventoryCloseEvent e) {
 		if (!(e.getPlayer() instanceof Player)) return;
 		Player p = (Player) e.getPlayer();
-		if (!p.getOpenInventory().getTitle().equalsIgnoreCase("upgrade warpbook")) return;
+		if (p.getOpenInventory().getTitle().equalsIgnoreCase(UpgradedTitle)) {
+			List<ItemStack> items = new ArrayList<>();
+			for (ItemStack item : e.getInventory().getContents()) {
+				if (item == null) continue;
+				items.addAll(p.getInventory().addItem(item).values());
+			}
+			for (ItemStack item : items) {
+				p.getWorld().dropItemNaturally(p.getLocation(), item);
+			}
+			return;
+		}
+		if (!p.getOpenInventory().getTitle().equalsIgnoreCase(UpgradeTitle)) return;
 		
 		// Give all the items
 		List<ItemStack> items = new ArrayList<>();

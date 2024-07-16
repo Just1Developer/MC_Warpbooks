@@ -46,6 +46,13 @@ public class WarpBook implements Listener {
 		meta.setDisplayName("§b§lElder Warpbook");
 		meta.setCustomModelData(8497);
 		opWarpBook.setItemMeta(meta);
+		
+		WarpBooks.UPGRADE = new ItemStack(opWarpBook);
+		meta  = WarpBooks.UPGRADE.getItemMeta();
+		assert meta != null;
+		meta.setDisplayName("§5Upgrade Warpbook");
+		meta.setLore(Collections.singletonList("§7Elder Warpbooks provide free teleports."));
+		WarpBooks.UPGRADE.setItemMeta(meta);
 	}
 	
 	public static boolean isWarpBook(ItemStack item) {
@@ -209,8 +216,9 @@ public class WarpBook implements Listener {
 		
 		if (e.getRawSlot() < 9 || e.getClick() == ClickType.SWAP_OFFHAND || e.getClick() == ClickType.UNKNOWN) {
 			e.setCancelled(true);
-			if (e.getRawSlot() == 4 && Fragment.isFragment(clicked) && WarpBooks.enableUpgrading) {
+			if (e.getRawSlot() == 4 && WarpBooks.UPGRADE.isSimilar(clicked) && WarpBooks.enableUpgrading) {
 				// Clicked the upgrade
+				e.setCurrentItem(null);	// For some reason, when shift-clicking, we still get the item
 				Upgrade.openUpgrader((Player) e.getWhoClicked());
 			}
 			return;

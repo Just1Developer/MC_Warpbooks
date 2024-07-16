@@ -70,6 +70,9 @@ public class Crafting implements Listener {
 		
 		for (ItemStack item : items) {
 			if (item == null) continue;
+			
+			if (Fragment.isFragment(item)) return;	// Managed by Fragment class. Only valid combination would be another fragment (or flint and steel). Is both handled
+			
 			if (item.getType() != WarpBooks.PLUGIN_MATERIAL) {
 				if (item.getType() == Material.ENDER_PEARL && enderPearlCount == 0) {
 					enderPearlCount = item.getAmount();
@@ -81,8 +84,6 @@ public class Crafting implements Listener {
 			
 			// Prevent Crafting with Warp Items, except for duplicating warp pages
 			if (item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).hasCustomModelData() && item.getItemMeta().getCustomModelData() != 0) {
-
-				if (Fragment.isFragment(item)) continue;	// Managed by Fragment class
 
 				if (WarpPage.isWarpPage(item) && page == null) {
 					page = item;
