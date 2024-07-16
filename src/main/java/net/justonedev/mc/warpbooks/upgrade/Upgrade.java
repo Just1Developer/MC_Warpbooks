@@ -69,13 +69,6 @@ public class Upgrade implements Listener {
 			return;
 		}
 		
-		if (e.getRawSlot() == 4 && WarpBooks.UPGRADE.isSimilar(e.getCurrentItem()) && WarpBooks.enableUpgrading) {
-			// Clicked the upgrade, inventory just opened.
-			// For some reason, this is fired as well. So, cancel it, so we don't keep the warp book when shift clicking
-			e.setCancelled(true);
-			return;
-		}
-		
 		boolean clickedOwnInv = e.getRawSlot() != e.getSlot();
 
 		if (!RECOGNIZED_CLICK_TYPES.contains(e.getClick())) {
@@ -85,11 +78,14 @@ public class Upgrade implements Listener {
 
 		if (CONFIRM_SLOTS.contains(e.getRawSlot()) && e.getClick() == ClickType.LEFT) {
 			e.setCancelled(true);
+			Player p = (Player) e.getWhoClicked();
 			if (!EmptyBarSlot.getReadyItem(true).isSimilar(e.getCurrentItem())) return;
 			ItemStack upgraded = WarpBook.getUpgraded(e.getView().getTopInventory().getItem(BOOK_SLOT));
 			e.getView().getTopInventory().clear();
-			openUpgraded(((Player) e.getWhoClicked()), upgraded);
-			((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 1.0f);
+			
+			p.setLevel(p.getLevel() - WarpBooks.LevelsToUpgrade);
+			openUpgraded(p, upgraded);
+			p.playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 0.7f, 1.0f);
 			return;
 		}
 

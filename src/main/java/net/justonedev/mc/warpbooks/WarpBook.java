@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -29,8 +30,12 @@ public class WarpBook implements Listener {
 	
 	// Todo for upgrading: p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 1.0f); (its a good sound)
 	
+	public static final String bookPrefix = "§b";
+	public static final String elderPrefix = bookPrefix + "§l";
+	
 	private static ItemStack warpBook, opWarpBook;
-	public static final String warpBookName = "§bWarpbook";
+	public static final String warpBookName = bookPrefix + "Warpbook";
+	public static final String elderBookName = elderPrefix + "Elder Warpbook";
 	
 	private static void init() {
 		warpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
@@ -43,7 +48,7 @@ public class WarpBook implements Listener {
 		opWarpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		meta = opWarpBook.getItemMeta();
 		assert meta != null;
-		meta.setDisplayName("§b§lElder Warpbook");
+		meta.setDisplayName(elderBookName);
 		meta.setCustomModelData(8497);
 		opWarpBook.setItemMeta(meta);
 		
@@ -344,6 +349,21 @@ public class WarpBook implements Listener {
 		// Now: Handle multiple pages
 		
 		//if ()
+	}
+	
+	@EventHandler
+	public void onAnvil(PrepareAnvilEvent e) {
+		// Keep colors when renaming
+		int level = WarpBook.getWarpBookLevel(e.getResult());
+		if (level > 0) {
+			if (e.getResult() == null) return;
+			ItemStack result = e.getResult();
+			ItemMeta meta = result.getItemMeta();
+			if (meta == null) return;
+			meta.setDisplayName((level == 2 ? elderPrefix : bookPrefix) + meta.getDisplayName());
+			result.setItemMeta(meta);
+			e.setResult(result);
+		}
 	}
 	
 	@EventHandler

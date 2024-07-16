@@ -2,8 +2,10 @@ package net.justonedev.mc.warpbooks;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.world.LootGenerateEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -100,6 +102,17 @@ public class Fragment implements Listener {
 		meta.setDamage(64 - totalHP);
 		result.setItemMeta(meta);
 		e.getInventory().setResult(result);
+	}
+	
+	@EventHandler
+	public void onAnvil(PrepareAnvilEvent e) {
+		Inventory inv = e.getInventory();
+		// As expected, 3 Slots: 0 = Left, 1 = Right, 2 = Result
+		
+		if (Fragment.isFragment(inv.getItem(0)) && !Fragment.isFragment(inv.getItem(1))
+		|| !Fragment.isFragment(inv.getItem(0)) && Fragment.isFragment(inv.getItem(1))) {
+			e.setResult(null);
+		}
 	}
 	
 }
