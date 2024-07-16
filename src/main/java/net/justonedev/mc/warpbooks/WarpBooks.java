@@ -23,8 +23,7 @@ public final class WarpBooks extends JavaPlugin {
     
     public static ItemStack PLACEHOLDER, UPGRADE;
     
-    // Recipe: Paper + Ender pearl for pages
-    
+    public static boolean enableUpgrading = true;
     public static int LevelsToUpgrade = 150;
     
     public static boolean enableCostTP = true, enableCostTPCrossWorlds = true;
@@ -37,8 +36,7 @@ public final class WarpBooks extends JavaPlugin {
     public static final int WARP_SLOTS = 45;
     
     // Resource pack stuff
-    public static boolean enableUpgrading = true;     // Todo make true once pack is set
-    static boolean useResourcePack = false;     // Todo make true once pack is set
+    public static boolean useResourcePack = true;
     
     @Override
     public void onEnable() {
@@ -61,8 +59,8 @@ public final class WarpBooks extends JavaPlugin {
         Fragment fragment = new Fragment();
         Upgrade upgrade = new Upgrade();
 
-        Resourcepack.defaultEnabled = useResourcePack;
-        new Resourcepack(this, "", "");
+        new Resourcepack(this, "https://www.dropbox.com/scl/fi/agtebdwngmlp2qrfyk6u1/5Warpbooks.zip?rlkey=a9brt8t27u5ruesm4l0g62x0x&st=a5imgznf&dl=1",
+                "f94a69613c3fb6cd9b04eb9dd946976d468955dc");
         
         Bukkit.getPluginManager().registerEvents(warpBook, this);
         Bukkit.getPluginManager().registerEvents(warpPage, this);
