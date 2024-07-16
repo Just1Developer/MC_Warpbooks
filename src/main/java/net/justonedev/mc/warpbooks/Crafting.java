@@ -81,7 +81,9 @@ public class Crafting implements Listener {
 			
 			// Prevent Crafting with Warp Items, except for duplicating warp pages
 			if (item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).hasCustomModelData() && item.getItemMeta().getCustomModelData() != 0) {
-				
+
+				if (Fragment.isFragment(item)) continue;	// Managed by Fragment class
+
 				if (WarpPage.isWarpPage(item) && page == null) {
 					page = item;
 					continue;
