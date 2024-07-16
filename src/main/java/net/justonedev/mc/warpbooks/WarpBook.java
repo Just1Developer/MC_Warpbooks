@@ -4,7 +4,6 @@ import net.justonedev.mc.warpbooks.upgrade.Upgrade;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,8 +26,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class WarpBook implements Listener {
-	
-	// Todo for upgrading: p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 1.0f); (its a good sound)
 	
 	public static final String bookPrefix = "§b";
 	public static final String elderPrefix = bookPrefix + "§l";
@@ -138,7 +135,7 @@ public class WarpBook implements Listener {
 	
 	private void openWarpBook(Player player, String uuid) {
 		Inventory bookInv = Bukkit.createInventory(null, WarpBooks.WARP_SLOTS, "Warpbook");
-		List<ItemStack> warps = WarpSaver.loadWarps(uuid);
+		List<ItemStack> warps = WarpSaver.loadWarps(uuid, player);
 		for (ItemStack warp : warps) {
 			bookInv.addItem(warp);
 		}
@@ -402,8 +399,8 @@ public class WarpBook implements Listener {
 		Location loc = WarpPage.getLocation(item);
 		if (loc == null) return;
 		
-		int cost = WarpBooks.LevelCostPerTeleport;
-		if (!Objects.equals(loc.getWorld(), p.getWorld())) cost = WarpBooks.LevelCostPerTeleportWorlds;
+		int cost = WarpBooks.enableCostTP ? WarpBooks.LevelCostPerTeleport : 0;
+		if (!Objects.equals(loc.getWorld(), p.getWorld())) cost = WarpBooks.enableCostTPCrossWorlds ? WarpBooks.LevelCostPerTeleportWorlds : 0;
 		
 		if (p.getLevel() < cost) {
 			p.sendMessage(String.format("§cYou don't have enough XP Levels to teleport. (§e%d §crequired, you have §e%d§c)", cost, p.getLevel()));

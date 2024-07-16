@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 public final class WarpBooks extends JavaPlugin {
 
@@ -24,12 +25,14 @@ public final class WarpBooks extends JavaPlugin {
     
     // Recipe: Paper + Ender pearl for pages
     
-    public static final int LevelsToUpgrade = 150;
+    public static int LevelsToUpgrade = 150;
+    
+    public static boolean enableCostTP = true, enableCostTPCrossWorlds = true;
     
     public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
     public static int LevelCostPerTeleport = 3, LevelCostPerTeleportWorlds = 5;
     public static final float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 1.6f;
-    public static final float teleportCooldown = defaultTeleportCooldown;
+    public static float teleportCooldown = defaultTeleportCooldown;
     
     public static final int WARP_SLOTS = 45;
     
@@ -74,6 +77,10 @@ public final class WarpBooks extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         WarpPage.closeAll();
+    }
+    
+    public static Logger getBukkitLogger() {
+        return singleton.getLogger();
     }
     
     public static void log(String s) {

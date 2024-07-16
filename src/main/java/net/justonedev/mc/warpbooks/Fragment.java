@@ -1,6 +1,5 @@
 package net.justonedev.mc.warpbooks;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -11,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 
@@ -41,7 +39,7 @@ public class Fragment implements Listener {
 	}
 	
 	public static final float minDur = 0.01f, maxDur = 0.11f;
-	public static final double CHANCE = 0.03;
+	public static double CHANCE = 0.03;
 	
 	public static ItemStack newFragment() {
 		ItemStack fragment = new ItemStack(warpFragment);

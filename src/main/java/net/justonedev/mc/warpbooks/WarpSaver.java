@@ -1,12 +1,15 @@
 package net.justonedev.mc.warpbooks;
 
-import org.bukkit.Material;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class WarpSaver {
@@ -20,7 +23,17 @@ public final class WarpSaver {
 		File f = new File(WarpBooks.getWarpbookFolder(), uuid + ".yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(f);
 		for (int i = 0; i < WarpBooks.WARP_SLOTS; i++) {
-			cfg.set("warps." + i, 9 + i >= warpContents.length ? null : warpContents[9 + i]);
+			ItemStack item = 9 + i >= warpContents.length ? null : warpContents[9 + i];
+			
+			if (item != null) {
+				ItemMeta m = item.getItemMeta();
+				if (m != null) {
+					m.setLore(Collections.emptyList());
+					item.setItemMeta(m);
+				}
+			}
+			
+			cfg.set("warps." + i, item);
 		}
 		try {
 			cfg.save(f);
@@ -34,12 +47,12 @@ public final class WarpSaver {
 	 * @param uuid The warpbooks uuid.
 	 * @return All warps for this warp book.
 	 */
-	public static List<ItemStack> loadWarps(final String uuid) {
+	public static List<ItemStack> loadWarps(final String uuid, Player player) {
 		File f = new File(WarpBooks.getWarpbookFolder(), uuid + ".yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(f);
 		List<ItemStack> warps = new ArrayList<>();
 		for (int i = 0; i < WarpBooks.WARP_SLOTS; i++) {
-			ItemStack itemstack = cfg.getItemStack("warps." + i);
+			ItemStack itemstack = getPageItemStack(cfg.getItemStack("warps." + i), player);
 			if (itemstack != null) warps.add(itemstack);
 		}
 		return warps;
@@ -65,6 +78,32 @@ public final class WarpSaver {
 		}
 		
 		return warps;
+	}
+	
+	private static ItemStack getPageItemStack(ItemStack item, Player p) {
+		if (item == null) return null;
+		ItemStack xp = new ItemStack(item);
+		ItemMeta meta = xp.getItemMeta();
+		
+		if (meta != null) {
+			int needed;
+			Location loc = WarpPage.getLocation(item);
+			if (loc != null && loc.getWorld() != null) {
+				if (loc.getWorld().equals(p.getWorld())) needed = WarpBooks.LevelCostPerTeleport;
+				else needed = WarpBooks.LevelCostPerTeleportWorlds;
+			} else needed = -1;
+			
+			if (needed == 0) {
+				meta.setLore(Collections.singletonList("§aFree"));
+			} else if (needed > 0) {
+				meta.setLore(Collections.singletonList((p.getLevel() >= needed ? "§a" : "§c") + p.getLevel() + "/" + needed + " Levels"));
+			} else {
+				meta.setLore(Collections.emptyList());
+			}
+		}
+		
+		xp.setItemMeta(meta);
+		return xp;
 	}
 	
 }
