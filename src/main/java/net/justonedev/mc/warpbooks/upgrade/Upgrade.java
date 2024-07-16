@@ -5,6 +5,7 @@ import net.justonedev.mc.warpbooks.WarpBook;
 import net.justonedev.mc.warpbooks.WarpBooks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,6 +43,7 @@ public class Upgrade implements Listener {
 	private static final int BOOK_SLOT = startRow + 4;
 	private static final int XP_SLOT = startRow + 19;
 	private static final List<Integer> NETHERITE_SLOTS = Arrays.asList(startRow + 21, startRow + 22, startRow + 23);
+	private static final List<Integer> CONFIRM_SLOTS = Arrays.asList(startRow + 29, startRow + 30, startRow + 31, startRow + 32, startRow + 33);
 	private static final int FRAGMENT_SLOT = startRow + 25;
 
 	private static final List<Integer> ALL_SLOTS = Arrays.asList(BOOK_SLOT, XP_SLOT, NETHERITE_SLOTS.get(0), NETHERITE_SLOTS.get(1), NETHERITE_SLOTS.get(2), FRAGMENT_SLOT);
@@ -62,6 +64,16 @@ public class Upgrade implements Listener {
 
 		if (!RECOGNIZED_CLICK_TYPES.contains(e.getClick())) {
 			if(!clickedOwnInv || e.getClick().isShiftClick()) e.setCancelled(true);
+			return;
+		}
+
+		if (CONFIRM_SLOTS.contains(e.getRawSlot()) && e.getClick() == ClickType.LEFT) {
+			e.setCancelled(true);
+			if (!EmptyBarSlot.getReadyItem(true).isSimilar(e.getCurrentItem())) return;
+			ItemStack upgraded = WarpBook.getUpgraded(e.getView().getTopInventory().getItem(BOOK_SLOT));
+			e.getView().getTopInventory().clear();
+			e.getView().getTopInventory().setItem(BOOK_SLOT, upgraded);
+			((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 1.0f);
 			return;
 		}
 
@@ -104,6 +116,7 @@ public class Upgrade implements Listener {
 					
 					e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyIngot);
 				}
+				updateReadyStatus(e.getView().getTopInventory());
 				return;
 			}
 			e.setCancelled(true);
@@ -132,6 +145,7 @@ public class Upgrade implements Listener {
 				}
 
 				clicked.setAmount(amount);
+				updateReadyStatus(e.getView().getTopInventory());
 				return;
 			}
 			
@@ -142,6 +156,7 @@ public class Upgrade implements Listener {
 				if (!EmptyBarSlot.isEmptyFragment(it)) return;
 				e.getInventory().setItem(FRAGMENT_SLOT, setBarItem);
 				clicked.setAmount(clicked.getAmount() - 1);
+				updateReadyStatus(e.getView().getTopInventory());
 				return;
 			}
 			
@@ -150,6 +165,7 @@ public class Upgrade implements Listener {
 			if (!EmptyBarSlot.isEmptyBook(it)) return;
 			e.getInventory().setItem(BOOK_SLOT, setBarItem);
 			clicked.setAmount(clicked.getAmount() - 1);
+			updateReadyStatus(e.getView().getTopInventory());
 			return;
 		}
 		
@@ -186,6 +202,7 @@ public class Upgrade implements Listener {
 			
 			e.getInventory().setItem(e.getRawSlot(), newItem);	// Validity is confirmed beforehand.
 			cursor.setAmount(cursor.getAmount() - 1);
+			updateReadyStatus(e.getView().getTopInventory());
 			return;
 		}
 		
@@ -198,11 +215,13 @@ public class Upgrade implements Listener {
 			if(NETHERITE_SLOTS.contains(e.getRawSlot())) e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyIngot);
 			else if(e.getSlot() == FRAGMENT_SLOT) e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyFragment);
 			else e.getInventory().setItem(e.getRawSlot(), EmptyBarSlot.emptyBook);
+			updateReadyStatus(e.getView().getTopInventory());
 			return;
 		}
 		
 		// If they would stack, cancel. If they can't stack, it won't make a difference since they're similar
 		if (cursor.isSimilar(clicked)) e.setCancelled(true);
+		updateReadyStatus(e.getView().getTopInventory());
 		// Otherwise just let the valid swap happen
 	}
 
@@ -250,6 +269,34 @@ public class Upgrade implements Listener {
 		meta.setLore(Collections.singletonList((p.getLevel() >= needed ? "§a" : "§c") + p.getLevel() + "/" + needed + " Levels"));
 		xp.setItemMeta(meta);
 		return xp;
+	}
+
+	private static void updateReadyStatus(Inventory upgradeInventory) {
+		boolean ready = shouldBeReady(upgradeInventory);
+		ItemStack fill = EmptyBarSlot.getReadyItem(ready);
+		if (fill.isSimilar(upgradeInventory.getItem(CONFIRM_SLOTS.get(0)))) return;
+		for (int slot : CONFIRM_SLOTS) {
+			upgradeInventory.setItem(slot, fill);
+		}
+	}
+
+	private static boolean shouldBeReady(Inventory upgradeInventory) {
+		boolean staticSlotsFull = !EmptyBarSlot.isEmptyBook(upgradeInventory.getItem(BOOK_SLOT))
+				&& !EmptyBarSlot.isEmptyFragment(upgradeInventory.getItem(FRAGMENT_SLOT));
+		if (!staticSlotsFull) return false;
+
+		ItemStack xp = upgradeInventory.getItem(XP_SLOT);
+		boolean xpReady = xp != null && xp.hasItemMeta() && Objects.requireNonNull(xp.getItemMeta()).hasLore()
+				&& !Objects.requireNonNull(xp.getItemMeta().getLore()).isEmpty()
+				&& xp.getItemMeta().getLore().get(0).startsWith("§a");
+		if (!xpReady) return false;
+
+		for (int slot : NETHERITE_SLOTS) {
+			if (EmptyBarSlot.isEmptyIngot(upgradeInventory.getItem(slot))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

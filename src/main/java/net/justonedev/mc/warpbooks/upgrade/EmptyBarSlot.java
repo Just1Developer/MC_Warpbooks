@@ -8,7 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class EmptyBarSlot {
@@ -17,7 +19,11 @@ public class EmptyBarSlot {
 	public static final String itemLore = "§7Add here";
 	public static final String fragmentName = "§81x " + Fragment.warpFragmentName;
 	public static final String bookName = "§81x " + WarpBook.warpBookName;
-	public static ItemStack emptyIngot, emptyFragment, emptyBook;
+
+	public static final String readyItemName = "§5Upgrade Warpbook now";
+	public static final String notReadyItemName = "§8Upgrade Warpbook";
+	public static final List<String> notReadyLore = Arrays.asList("§7Place all items and make", "§7sure you have enough xp");
+	public static ItemStack emptyIngot, emptyFragment, emptyBook, readyItem, notReadyItem;
 
 	public static void init() {
 		
@@ -48,6 +54,19 @@ public class EmptyBarSlot {
 		meta.setLore(Collections.singletonList(itemLore));
 		meta.setCustomModelData(8492);
 		emptyBook.setItemMeta(meta);
+
+		readyItem = new ItemStack(Material.PURPLE_STAINED_GLASS_PANE, 1);
+		meta = readyItem.getItemMeta();
+		assert meta != null;
+		meta.setDisplayName(readyItemName);
+		readyItem.setItemMeta(meta);
+
+		notReadyItem = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
+		meta = notReadyItem.getItemMeta();
+		assert meta != null;
+		meta.setDisplayName(notReadyItemName);
+		meta.setLore(notReadyLore);
+		notReadyItem.setItemMeta(meta);
 	}
 	
 	public static boolean isEmptyIngot(ItemStack item) {
@@ -66,6 +85,11 @@ public class EmptyBarSlot {
 		if (item == null) return true;
 		if (item.getType() == Material.AIR) return true;
 		return item.isSimilar(emptyBook);
+	}
+
+	public static ItemStack getReadyItem(boolean isReady) {
+		if (isReady) return readyItem;
+		return notReadyItem;
 	}
 	
 }

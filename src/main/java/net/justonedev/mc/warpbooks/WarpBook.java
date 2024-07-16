@@ -30,7 +30,7 @@ public class WarpBook implements Listener {
 	// Todo for upgrading: p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 1.0f); (its a good sound)
 	
 	private static ItemStack warpBook, opWarpBook;
-	public static final String warpBookName = "§bWarp book";
+	public static final String warpBookName = "§bWarpbook";
 	
 	private static void init() {
 		warpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
@@ -43,7 +43,7 @@ public class WarpBook implements Listener {
 		opWarpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		meta = opWarpBook.getItemMeta();
 		assert meta != null;
-		meta.setDisplayName("§b§lWarp book");
+		meta.setDisplayName("§b§lElder Warpbook");
 		meta.setCustomModelData(8497);
 		opWarpBook.setItemMeta(meta);
 	}
