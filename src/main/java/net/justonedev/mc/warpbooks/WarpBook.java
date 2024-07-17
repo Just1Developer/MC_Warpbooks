@@ -350,6 +350,17 @@ public class WarpBook implements Listener {
 	
 	@EventHandler
 	public void onAnvil(PrepareAnvilEvent e) {
+		// No cursive names for warp pages
+		if (WarpPage.isWarpPage(e.getResult()) {
+			if (e.getResult() == null) return;
+			ItemStack result = e.getResult();
+			ItemMeta meta = result.getItemMeta();
+			if (meta == null) return;
+			if(!meta.getDisplayName().startsWith("§"))
+				meta.setDisplayName("§f" + meta.getDisplayName());
+			result.setItemMeta(meta);
+			e.setResult(result); 
+		}
 		// Keep colors when renaming
 		int level = WarpBook.getWarpBookLevel(e.getResult());
 		if (level > 0) {
