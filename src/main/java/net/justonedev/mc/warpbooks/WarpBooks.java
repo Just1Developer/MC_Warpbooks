@@ -24,6 +24,7 @@ public final class WarpBooks extends JavaPlugin {
     public static ItemStack PLACEHOLDER, UPGRADE;
     
     public static boolean enableUpgrading = true;
+    public static boolean enableTPSound = true;
     public static int LevelsToUpgrade = 150;
     
     public static boolean enableCostTP = true, enableCostTPCrossWorlds = true;

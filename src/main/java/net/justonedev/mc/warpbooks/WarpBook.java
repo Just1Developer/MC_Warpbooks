@@ -4,6 +4,7 @@ import net.justonedev.mc.warpbooks.upgrade.Upgrade;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -129,8 +130,11 @@ public class WarpBook implements Listener {
 			return;
 		}
 		
-		if (e.getPlayer().isSneaking()) openWarpBookEditor(e.getPlayer(), uuid, level == 1);
-		else openWarpBook(e.getPlayer(), uuid);
+		Player p = e.getPlayer();
+		
+		if (p.isSneaking()) openWarpBookEditor(p, uuid, level == 1);
+		else openWarpBook(p, uuid);
+		p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.85f, 1.0f);
 	}
 	
 	private void openWarpBook(Player player, String uuid) {
@@ -425,5 +429,6 @@ public class WarpBook implements Listener {
 		teleportCooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (1000 * WarpBooks.teleportCooldown));
 		p.setLevel(p.getLevel() - cost);
 		p.teleport(loc);
+		if (WarpBooks.enableTPSound) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.45f, 1.0f);
 	}
 }

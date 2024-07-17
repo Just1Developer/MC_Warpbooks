@@ -26,6 +26,7 @@ public final class Config {
 			cfg.set("Level cost to upgrade", WarpBooks.LevelsToUpgrade);
 			cfg.set("Fragment Spawn Chance in Percent", (int) (Fragment.CHANCE * 100));
 			cfg.set("Enable Resource Pack", WarpBooks.useResourcePack);
+			cfg.set("Enable Sound when Teleporting", WarpBooks.enableTPSound);
 			saveCfg(f, cfg);
 			return;
 		}
@@ -40,6 +41,7 @@ public final class Config {
 		WarpBooks.enableUpgrading = getOrDefaultBoolean("Enable Upgrading Books", cfg, updateThese, WarpBooks.enableUpgrading);
 		WarpBooks.LevelsToUpgrade = getOrDefaultInteger("Level cost to upgrade", cfg, updateThese, WarpBooks.LevelsToUpgrade);
 		WarpBooks.useResourcePack = getOrDefaultBoolean("Enable Resource Pack", cfg, updateThese, WarpBooks.useResourcePack);
+		WarpBooks.enableTPSound = getOrDefaultBoolean("Enable Sound when Teleporting", cfg, updateThese, WarpBooks.enableTPSound);
 		
 		if (!WarpBooks.enableCostTP) WarpBooks.LevelCostPerTeleport = -1;
 		if (!WarpBooks.enableCostTPCrossWorlds) WarpBooks.LevelCostPerTeleportWorlds = -1;
