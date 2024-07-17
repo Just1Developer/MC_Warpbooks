@@ -165,9 +165,16 @@ public class WarpPage implements Listener {
 		if (!isWarpPage(page)) return;
 		ItemMeta meta = page.getItemMeta();
 		assert meta != null;
-		
-		String line = e.getLine(0);
-		if (line == null || line.isEmpty()) {
+
+		StringBuilder lineBuilder = new StringBuilder();
+		for (int i = 0; i < 4; ++i) {
+			String _line = e.getLine(i);
+			if (_line == null) continue;
+			lineBuilder.append(_line.trim()).append(" ");
+		}
+		String line = lineBuilder.toString().trim();
+
+		if (line.isEmpty()) {
 			// Give old name back
 			if (meta.hasLore() && !Objects.requireNonNull(meta.getLore()).isEmpty()) {
 				meta.setDisplayName(meta.getLore().get(0));

@@ -3,7 +3,6 @@ package net.justonedev.mc.warpbooks.upgrade;
 import net.justonedev.mc.warpbooks.Fragment;
 import net.justonedev.mc.warpbooks.WarpBook;
 import net.justonedev.mc.warpbooks.WarpBooks;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

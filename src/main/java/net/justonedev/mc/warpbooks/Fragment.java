@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -59,6 +60,7 @@ public class Fragment implements Listener {
 	@EventHandler
 	public void onLootGenerate(LootGenerateEvent e) {
 		if (e.getLootContext().getKiller() != null) return;
+		if (e.getLootContext().getLootedEntity() != null) return;
 		if (lootRandom.nextDouble() < CHANCE) {
 			e.getLoot().add(newFragment());
 		}

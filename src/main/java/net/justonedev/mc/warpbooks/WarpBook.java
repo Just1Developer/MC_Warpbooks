@@ -351,7 +351,7 @@ public class WarpBook implements Listener {
 	@EventHandler
 	public void onAnvil(PrepareAnvilEvent e) {
 		// No cursive names for warp pages
-		if (WarpPage.isWarpPage(e.getResult()) {
+		if (WarpPage.isWarpPage(e.getResult())) {
 			if (e.getResult() == null) return;
 			ItemStack result = e.getResult();
 			ItemMeta meta = result.getItemMeta();
