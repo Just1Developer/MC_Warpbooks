@@ -47,12 +47,12 @@ public final class WarpSaver {
 	 * @param uuid The warpbooks uuid.
 	 * @return All warps for this warp book.
 	 */
-	public static List<ItemStack> loadWarps(final String uuid, Player player) {
+	public static List<ItemStack> loadWarps(final String uuid, Player player, boolean isElder) {
 		File f = new File(WarpBooks.getWarpbookFolder(), uuid + ".yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(f);
 		List<ItemStack> warps = new ArrayList<>();
 		for (int i = 0; i < WarpBooks.WARP_SLOTS; i++) {
-			ItemStack itemstack = getPageItemStack(cfg.getItemStack("warps." + i), player);
+			ItemStack itemstack = getPageItemStack(cfg.getItemStack("warps." + i), player, isElder);
 			if (itemstack != null) warps.add(itemstack);
 		}
 		return warps;
@@ -80,12 +80,12 @@ public final class WarpSaver {
 		return warps;
 	}
 	
-	private static ItemStack getPageItemStack(ItemStack item, Player p) {
+	private static ItemStack getPageItemStack(ItemStack item, Player p, boolean isElder) {
 		if (item == null) return null;
 		ItemStack xp = new ItemStack(item);
 		ItemMeta meta = xp.getItemMeta();
 		
-		if (meta != null) {
+		if (!isElder && meta != null) {
 			int needed;
 			Location loc = WarpPage.getLocation(item);
 			if (loc != null && loc.getWorld() != null) {

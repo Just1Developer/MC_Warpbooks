@@ -34,7 +34,10 @@ public class WarpBook implements Listener {
 	private static ItemStack warpBook, opWarpBook;
 	public static final String warpBookName = bookPrefix + "Warpbook";
 	public static final String elderBookName = elderPrefix + "Elder Warpbook";
-	
+
+	private static final int NORMAL_LEVEL = 1;
+	private static final int ELDER_LEVEL = 2;
+
 	private static void init() {
 		warpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		ItemMeta meta = warpBook.getItemMeta();
@@ -74,8 +77,8 @@ public class WarpBook implements Listener {
 	}
 	
 	private static int getWarpBookLevel(ItemStack item) {
-		if (isWarpBook(item)) return 1;
-		if (isOPWarpBook(item)) return 2;
+		if (isWarpBook(item)) return NORMAL_LEVEL;
+		if (isOPWarpBook(item)) return ELDER_LEVEL;
 		return 0;
 	}
 	
@@ -132,14 +135,14 @@ public class WarpBook implements Listener {
 		
 		Player p = e.getPlayer();
 		
-		if (p.isSneaking()) openWarpBookEditor(p, uuid, level == 1);
-		else openWarpBook(p, uuid);
+		if (p.isSneaking()) openWarpBookEditor(p, uuid, level == NORMAL_LEVEL);
+		else openWarpBook(p, uuid, level == ELDER_LEVEL);
 		p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.85f, 1.0f);
 	}
 	
-	private void openWarpBook(Player player, String uuid) {
+	private void openWarpBook(Player player, String uuid, boolean isElder) {
 		Inventory bookInv = Bukkit.createInventory(null, WarpBooks.WARP_SLOTS, "Warpbook");
-		List<ItemStack> warps = WarpSaver.loadWarps(uuid, player);
+		List<ItemStack> warps = WarpSaver.loadWarps(uuid, player, isElder);
 		for (ItemStack warp : warps) {
 			bookInv.addItem(warp);
 		}
@@ -413,21 +416,27 @@ public class WarpBook implements Listener {
 		if (!WarpPage.isWarpPage(item)) return;
 		Location loc = WarpPage.getLocation(item);
 		if (loc == null) return;
-		
-		int cost = WarpBooks.enableCostTP ? WarpBooks.LevelCostPerTeleport : 0;
-		if (!Objects.equals(loc.getWorld(), p.getWorld())) cost = WarpBooks.enableCostTPCrossWorlds ? WarpBooks.LevelCostPerTeleportWorlds : 0;
-		
-		if (p.getLevel() < cost) {
-			p.sendMessage(String.format("§cYou don't have enough XP Levels to teleport. (§e%d §crequired, you have §e%d§c)", cost, p.getLevel()));
-			return;
+
+		int cost = -1;
+
+		assert item.getItemMeta() != null;
+		if (item.getItemMeta().hasLore()) {
+			// Teleport is not free
+			cost = WarpBooks.enableCostTP ? WarpBooks.LevelCostPerTeleport : 0;
+			if (!Objects.equals(loc.getWorld(), p.getWorld())) cost = WarpBooks.enableCostTPCrossWorlds ? WarpBooks.LevelCostPerTeleportWorlds : 0;
+
+			if (p.getLevel() < cost) {
+				p.sendMessage(String.format("§cYou don't have enough XP Levels to teleport. (§e%d §crequired, you have §e%d§c)", cost, p.getLevel()));
+				return;
+			}
 		}
-		
+
 		if (teleportCooldown.getOrDefault(p.getUniqueId(), 0L) > System.currentTimeMillis()) {
 			return;
 		}
 		
 		teleportCooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (1000 * WarpBooks.teleportCooldown));
-		p.setLevel(p.getLevel() - cost);
+		if (cost > 0) p.setLevel(p.getLevel() - cost);
 		p.teleport(loc);
 		if (WarpBooks.enableTPSound) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.45f, 1.0f);
 	}
