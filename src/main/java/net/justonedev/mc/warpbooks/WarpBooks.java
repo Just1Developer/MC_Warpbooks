@@ -38,7 +38,12 @@ public final class WarpBooks extends JavaPlugin {
     
     // Resource pack stuff
     public static boolean useResourcePack = true;
-    
+
+    public static final String DEFAULT_PACK_URL = "https://www.dropbox.com/scl/fi/agtebdwngmlp2qrfyk6u1/5Warpbooks.zip?rlkey=a9brt8t27u5ruesm4l0g62x0x&st=a5imgznf&dl=1";
+    public static String packUrl = DEFAULT_PACK_URL;
+    public static final String DEFAULT_PACK_HASH = "f94a69613c3fb6cd9b04eb9dd946976d468955dc";
+    public static String packHash = DEFAULT_PACK_HASH;
+
     @Override
     public void onEnable() {
         singleton = this;
@@ -60,8 +65,7 @@ public final class WarpBooks extends JavaPlugin {
         Fragment fragment = new Fragment();
         Upgrade upgrade = new Upgrade();
 
-        new Resourcepack(this, "https://www.dropbox.com/scl/fi/agtebdwngmlp2qrfyk6u1/5Warpbooks.zip?rlkey=a9brt8t27u5ruesm4l0g62x0x&st=a5imgznf&dl=1",
-                "f94a69613c3fb6cd9b04eb9dd946976d468955dc");
+        new Resourcepack(this, packUrl, packHash);
         
         Bukkit.getPluginManager().registerEvents(warpBook, this);
         Bukkit.getPluginManager().registerEvents(warpPage, this);

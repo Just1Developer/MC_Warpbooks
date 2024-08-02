@@ -11,6 +11,9 @@ import java.util.Map;
 
 public final class Config {
 
+	private static final String KEY_RESOURCE_PACK_URL = "Resource Pack (only change if you know what you're doing)";
+	private static final String KEY_RESOURCE_PACK_HASH = "Resource Pack File Hash";
+
 	public static void initialize() {
 		File f = new File(WarpBooks.getFolder(), "config.yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(f);
@@ -26,6 +29,8 @@ public final class Config {
 			cfg.set("Level cost to upgrade", WarpBooks.LevelsToUpgrade);
 			cfg.set("Fragment Spawn Chance in Percent", (int) (Fragment.CHANCE * 100));
 			cfg.set("Enable Resource Pack", WarpBooks.useResourcePack);
+			cfg.set(KEY_RESOURCE_PACK_URL, WarpBooks.DEFAULT_PACK_URL);
+			cfg.set(KEY_RESOURCE_PACK_HASH, WarpBooks.DEFAULT_PACK_HASH);
 			cfg.set("Enable Sound when Teleporting", WarpBooks.enableTPSound);
 			saveCfg(f, cfg);
 			return;
@@ -42,7 +47,9 @@ public final class Config {
 		WarpBooks.LevelsToUpgrade = getOrDefaultInteger("Level cost to upgrade", cfg, updateThese, WarpBooks.LevelsToUpgrade);
 		WarpBooks.useResourcePack = getOrDefaultBoolean("Enable Resource Pack", cfg, updateThese, WarpBooks.useResourcePack);
 		WarpBooks.enableTPSound = getOrDefaultBoolean("Enable Sound when Teleporting", cfg, updateThese, WarpBooks.enableTPSound);
-		
+		WarpBooks.packUrl = getOrDefaultURL(cfg, updateThese);
+		WarpBooks.packHash = getOrDefaultHash(cfg, updateThese);
+
 		if (!WarpBooks.enableCostTP) WarpBooks.LevelCostPerTeleport = -1;
 		if (!WarpBooks.enableCostTPCrossWorlds) WarpBooks.LevelCostPerTeleportWorlds = -1;
 		
@@ -93,6 +100,30 @@ public final class Config {
 		if (cfg.isSet(key)) return (float) cfg.getDouble(key);	// Yeah, I know
 		updateThese.put(key, defaultValue);
 		return defaultValue;
+	}
+
+	private static String getOrDefaultURL(YamlConfiguration cfg, Map<String, Object> updateThese)
+	{
+		if (cfg.isSet(Config.KEY_RESOURCE_PACK_URL)) {
+			String url = cfg.getString(Config.KEY_RESOURCE_PACK_URL);
+			if (url == null) return WarpBooks.DEFAULT_PACK_URL;
+			if (!url.startsWith("http")) return WarpBooks.DEFAULT_PACK_URL;
+			if (!url.startsWith("://www.dropbox.com")) return url;
+			if (url.endsWith("dl=0")) return url.substring(url.length() - 4) + "dl=1";
+			return url;
+		}
+		updateThese.put(Config.KEY_RESOURCE_PACK_URL, WarpBooks.DEFAULT_PACK_URL);
+		return WarpBooks.DEFAULT_PACK_URL;
+	}
+
+	private static String getOrDefaultHash(YamlConfiguration cfg, Map<String, Object> updateThese)
+	{
+		if (cfg.isSet(Config.KEY_RESOURCE_PACK_HASH)) {
+			String hash = cfg.getString(Config.KEY_RESOURCE_PACK_HASH);
+			return hash == null ? WarpBooks.DEFAULT_PACK_HASH : hash;
+		}
+		updateThese.put(Config.KEY_RESOURCE_PACK_HASH, WarpBooks.DEFAULT_PACK_HASH);
+		return WarpBooks.DEFAULT_PACK_HASH;
 	}
 	
 	private static void saveCfg(File f, YamlConfiguration cfg) {
