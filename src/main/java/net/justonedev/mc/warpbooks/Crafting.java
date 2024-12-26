@@ -5,14 +5,16 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.recipe.CraftingBookCategory;
 
 import java.util.Objects;
 
 public class Crafting implements Listener {
-	
+
 	public static void addCraftingRecipes() {
 		ShapelessRecipe craftingRecipe = new ShapelessRecipe(WarpBooks.pageCraftkey, WarpPage.warpPage);
 		craftingRecipe.setCategory(CraftingBookCategory.MISC);
@@ -21,6 +23,21 @@ public class Crafting implements Listener {
 		
 		Bukkit.addRecipe(craftingRecipe);
 		WarpBooks.log("Added the warp page crafting recipe");
+
+		ShapedRecipe bookRecipe = new ShapedRecipe(WarpBooks.bookCraftKey, WarpBook.getEmptyWarpBook());
+		bookRecipe.setCategory(CraftingBookCategory.MISC);
+		bookRecipe.shape("EEE", "EBE", "EEE");
+		bookRecipe.setIngredient('E', Material.ENDER_PEARL);
+		bookRecipe.setIngredient('B', Material.BOOK);
+
+		Bukkit.addRecipe(bookRecipe);
+		WarpBooks.log("Added the warp book crafting recipe");
+	}
+
+	@EventHandler
+	public void onPlayerLearnRecipe(PlayerJoinEvent e) {
+		e.getPlayer().discoverRecipe(WarpBooks.pageCraftkey);
+		e.getPlayer().discoverRecipe(WarpBooks.bookCraftKey);
 	}
 	
 	// Layout:

@@ -29,7 +29,7 @@ public final class WarpBooks extends JavaPlugin {
     
     public static boolean enableCostTP = true, enableCostTPCrossWorlds = true;
     
-    public static NamespacedKey idKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
+    public static NamespacedKey idKey, bookCraftKey, pageCraftkey, pageWorldKey, pageXKey, pageYKey, pageZKey, pagePitchKey, pageYawKey;
     public static int LevelCostPerTeleport = 3, LevelCostPerTeleportWorlds = 5;
     public static final float minimumTeleportCooldown = 0.8f, defaultTeleportCooldown = 1.6f;
     public static float teleportCooldown = defaultTeleportCooldown;
@@ -52,6 +52,7 @@ public final class WarpBooks extends JavaPlugin {
         Config.initialize();
         
         idKey = new NamespacedKey(this, "id");
+        bookCraftKey = new NamespacedKey(this, "bookCraftRecipeKey");
         pageCraftkey = new NamespacedKey(this, "pageCraftRecipeKey");
         pageWorldKey = new NamespacedKey(this, "pageWorld");
         pageXKey = new NamespacedKey(this, "pageX");

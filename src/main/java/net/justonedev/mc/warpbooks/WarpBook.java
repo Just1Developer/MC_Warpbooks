@@ -90,6 +90,10 @@ public class WarpBook implements Listener {
 		book.setItemMeta(meta);
 		return book;
 	}
+
+	public static ItemStack getEmptyWarpBook() {
+		return new ItemStack(warpBook);
+	}
 	
 	public static String getWarpBookUUID(ItemStack warpBook) {
 		ItemMeta meta = warpBook.getItemMeta();
