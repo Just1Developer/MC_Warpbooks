@@ -36,6 +36,10 @@ public class ModelDataInformation {
         return modelDataType;
     }
 
+    public boolean isNone() {
+        return modelDataType == ModelDataType.NONE;
+    }
+
     public static ModelDataInformation withName(String modelName) {
         return new ModelDataInformation(modelName, -1, ModelDataType.MODEL_NAME);
     }

@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,8 +27,8 @@ public class Fragment implements Listener {
 		ItemMeta meta = warpFragment.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName(warpFragmentName);
-		meta.setCustomModelData(2000000000);
 		warpFragment.setItemMeta(meta);
+        ItemModelHandler.applyModelData(warpFragment, "warpFragment", 2000000000);
 	}
 	
 	public static boolean isFragment(ItemStack item) {

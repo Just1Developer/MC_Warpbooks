@@ -12,6 +12,19 @@ public final class ItemModelHandler {
      * server is below 1.21.4, the method will use the old customModelData system.
      *
      * @param itemStack The ItemStack to apply the model to.
+     * @param modelInformation The information for the model.
+     */
+    public static void applyModelData(ItemStack itemStack, ModelDataInformation modelInformation) {
+        applyModelData(itemStack, modelInformation.getModelName(), modelInformation.getModelInteger());
+    }
+
+    /**
+     * Applies a model to an ItemStack. Automatically determines what to apply
+     * based on the minecraft version the server is running. If the Server is
+     * >= 1.21.4, the method will use the new system with modelName. If the
+     * server is below 1.21.4, the method will use the old customModelData system.
+     *
+     * @param itemStack The ItemStack to apply the model to.
      * @param modelName The model name for newer versions
      * @param customModelData The custom model data for older versions.
      */

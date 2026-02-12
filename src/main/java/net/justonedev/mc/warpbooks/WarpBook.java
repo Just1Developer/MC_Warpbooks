@@ -1,5 +1,7 @@
 package net.justonedev.mc.warpbooks;
 
+import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
+import net.justonedev.mc.warpbooks.resourcepack.ModelDataInformation;
 import net.justonedev.mc.warpbooks.upgrade.Upgrade;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,7 +33,7 @@ public class WarpBook implements Listener {
 	public static final String bookPrefix = "§b";
 	public static final String elderPrefix = bookPrefix + "§l";
 	
-	private static ItemStack warpBook, opWarpBook;
+	private static ItemStack warpBook, elderWarpBook;
 	public static final String warpBookName = bookPrefix + "Warpbook";
 	public static final String elderBookName = elderPrefix + "Elder Warpbook";
 
@@ -43,17 +45,17 @@ public class WarpBook implements Listener {
 		ItemMeta meta = warpBook.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName(warpBookName);
-		meta.setCustomModelData(8498);
 		warpBook.setItemMeta(meta);
+        ItemModelHandler.applyModelData(warpBook, "warpBook", 8498);
 		
-		opWarpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
-		meta = opWarpBook.getItemMeta();
+		elderWarpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
+		meta = elderWarpBook.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName(elderBookName);
-		meta.setCustomModelData(8497);
-		opWarpBook.setItemMeta(meta);
+		elderWarpBook.setItemMeta(meta);
+        ItemModelHandler.applyModelData(elderWarpBook, "elderWarpBook", 8497);
 		
-		WarpBooks.UPGRADE = new ItemStack(opWarpBook);
+		WarpBooks.UPGRADE = new ItemStack(elderWarpBook);
 		meta  = WarpBooks.UPGRADE.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName("§5Upgrade Warpbook");
@@ -66,14 +68,15 @@ public class WarpBook implements Listener {
 	}
 	
 	public static boolean isOPWarpBook(ItemStack item) {
-		return isWarpItem(item, opWarpBook);
+		return isWarpItem(item, elderWarpBook);
 	}
 	
 	static boolean isWarpItem(ItemStack item, ItemStack warpItem) {
 		if (item == null || item.getType() != warpItem.getType()) return false;
 		if (item.getItemMeta() == null) return false;
-		if (!item.getItemMeta().hasCustomModelData()) return false;
-		return item.getItemMeta().getCustomModelData() == Objects.requireNonNull(warpItem.getItemMeta()).getCustomModelData();
+        ModelDataInformation modelData = ItemModelHandler.getModelData(item);
+        if (modelData.isNone()) return false;
+        return modelData.equals(ItemModelHandler.getModelData(warpItem));
 	}
 	
 	private static int getWarpBookLevel(ItemStack item) {
@@ -108,13 +111,13 @@ public class WarpBook implements Listener {
 		ItemStack newBook = new ItemStack(warpBook);
 		ItemMeta meta = newBook.getItemMeta();
 		assert meta != null;
-		meta.setCustomModelData(Objects.requireNonNull(opWarpBook.getItemMeta()).getCustomModelData());
 		if (meta.hasDisplayName() && meta.getDisplayName().startsWith("§b")) {
 			meta.setDisplayName("§b§l" + meta.getDisplayName().substring(2));
 		} else {
 			meta.setDisplayName("§b§l" + meta.getDisplayName());
 		}
 		newBook.setItemMeta(meta);
+        ItemModelHandler.applyModelData(newBook, ItemModelHandler.getModelData(elderWarpBook));
 		return newBook;
 	}
 	
