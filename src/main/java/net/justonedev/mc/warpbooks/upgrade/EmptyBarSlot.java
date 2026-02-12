@@ -3,6 +3,7 @@ package net.justonedev.mc.warpbooks.upgrade;
 import net.justonedev.mc.warpbooks.Fragment;
 import net.justonedev.mc.warpbooks.WarpBook;
 import net.justonedev.mc.warpbooks.WarpBooks;
+import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,24 +36,24 @@ public class EmptyBarSlot {
 		assert meta != null;
 		meta.setDisplayName(itemName);
 		meta.setLore(Collections.singletonList(itemLore));
-		meta.setCustomModelData(8490);
 		emptyIngot.setItemMeta(meta);
+        ItemModelHandler.applyModelData(emptyIngot, "placeholderEmptyIngot", 8490);
 		
 		emptyFragment = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		meta = emptyFragment.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName(fragmentName);
 		meta.setLore(Collections.singletonList(itemLore));
-		meta.setCustomModelData(8491);
 		emptyFragment.setItemMeta(meta);
+        ItemModelHandler.applyModelData(emptyFragment, "placeholderEmptyFragment", 8491);
 		
 		emptyBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		meta = emptyBook.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName(bookName);
 		meta.setLore(Collections.singletonList(itemLore));
-		meta.setCustomModelData(8492);
 		emptyBook.setItemMeta(meta);
+        ItemModelHandler.applyModelData(emptyBook, "placeholderEmptyBook", 8492);
 
 		readyItem = new ItemStack(Material.PURPLE_STAINED_GLASS_PANE, 1);
 		meta = readyItem.getItemMeta();
