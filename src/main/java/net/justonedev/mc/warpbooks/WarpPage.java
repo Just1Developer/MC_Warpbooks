@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -37,8 +38,8 @@ public class WarpPage implements Listener {
 		assert meta != null;
 		meta.setDisplayName(itemName);
 		meta.setLore(Collections.singletonList(itemLore));
-		meta.setCustomModelData(8499);
 		warpPage.setItemMeta(meta);
+        ItemModelHandler.applyModelData(warpPage, "warpPage", 8499);
 	}
 	
 	public static boolean isWarpPage(ItemStack item) {
