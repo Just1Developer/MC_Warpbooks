@@ -1,5 +1,6 @@
 package net.justonedev.mc.warpbooks;
 
+import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -64,8 +65,9 @@ public class Crafting implements Listener {
 			if (i == 4 && item.getType() != Material.BOOK) return;
 			
 			if (!item.hasItemMeta()) continue;
-			if (!Objects.requireNonNull(item.getItemMeta()).hasCustomModelData()) continue;
-			if (Objects.requireNonNull(item.getItemMeta()).getCustomModelData() != 0) return;
+            if (!ItemModelHandler.hasModelData(item)) continue;
+            var modelData = ItemModelHandler.getModelData(item);
+			if (modelData.hasModelName() || modelData.hasModelInteger() && modelData.getModelInteger() != 0) return;
 		}
 		
 		// In case anything uses books to be like other stuff
@@ -97,7 +99,8 @@ public class Crafting implements Listener {
 			}
 			
 			// Prevent Crafting with Warp Items, except for duplicating warp pages
-			if (item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).hasCustomModelData() && item.getItemMeta().getCustomModelData() != 0) {
+            var modelData = ItemModelHandler.getModelData(item);
+			if (modelData.hasModelName() || modelData.hasModelInteger() && modelData.getModelInteger() != 0) {
 
 				if (WarpPage.isWarpPage(item) && page == null) {
 					page = item;
