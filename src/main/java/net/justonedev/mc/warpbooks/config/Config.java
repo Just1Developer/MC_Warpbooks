@@ -81,43 +81,43 @@ public final class Config {
 		saveCfg(f, cfg);
 	}
 	
-	private static boolean getOrDefaultBoolean(String key, YamlConfiguration cfg, Map<String, Object> updateThese, boolean defaultValue)
-	{
+	private static boolean getOrDefaultBoolean(String key, YamlConfiguration cfg, Map<String, Object> updateThese, boolean defaultValue) {
 		if (cfg.isSet(key)) return cfg.getBoolean(key);
 		updateThese.put(key, defaultValue);
 		return defaultValue;
 	}
 	
-	private static int getOrDefaultInteger(String key, YamlConfiguration cfg, Map<String, Object> updateThese, int defaultValue)
-	{
+	private static int getOrDefaultInteger(String key, YamlConfiguration cfg, Map<String, Object> updateThese, int defaultValue) {
 		if (cfg.isSet(key)) return cfg.getInt(key);
 		updateThese.put(key, defaultValue);
 		return defaultValue;
 	}
 	
-	private static float getOrDefaultFloat(String key, YamlConfiguration cfg, Map<String, Object> updateThese, float defaultValue)
-	{
+	private static float getOrDefaultFloat(String key, YamlConfiguration cfg, Map<String, Object> updateThese, float defaultValue) {
 		if (cfg.isSet(key)) return (float) cfg.getDouble(key);	// Yeah, I know
 		updateThese.put(key, defaultValue);
 		return defaultValue;
 	}
 
-	private static String getOrDefaultURL(YamlConfiguration cfg, Map<String, Object> updateThese)
-	{
+	private static String getOrDefaultURL(YamlConfiguration cfg, Map<String, Object> updateThese) {
 		if (cfg.isSet(Config.KEY_RESOURCE_PACK_URL)) {
 			String url = cfg.getString(Config.KEY_RESOURCE_PACK_URL);
-			if (url == null) return WarpBooks.DEFAULT_PACK_URL;
-			if (!url.startsWith("http")) return WarpBooks.DEFAULT_PACK_URL;
-			if (!url.startsWith("://www.dropbox.com")) return url;
-			if (url.endsWith("dl=0")) return url.substring(url.length() - 4) + "dl=1";
-			return url;
+            return fixOrDefaultUrl(url);
 		}
 		updateThese.put(Config.KEY_RESOURCE_PACK_URL, WarpBooks.DEFAULT_PACK_URL);
 		return WarpBooks.DEFAULT_PACK_URL;
 	}
 
-	private static String getOrDefaultHash(YamlConfiguration cfg, Map<String, Object> updateThese)
-	{
+    public static String fixOrDefaultUrl(String url) {
+        if (url == null) return WarpBooks.DEFAULT_PACK_URL;
+        if (!url.startsWith("http")) return WarpBooks.DEFAULT_PACK_URL;
+        if (!url.startsWith("https")) url = url.replaceFirst("http", "https");
+        if (!url.matches("^https://www\\.dropbox\\.com/.+$")) return url;
+        if (url.endsWith("dl=0")) return url.substring(0, url.length() - 4) + "dl=1";
+        return url;
+    }
+
+	private static String getOrDefaultHash(YamlConfiguration cfg, Map<String, Object> updateThese) {
 		if (cfg.isSet(Config.KEY_RESOURCE_PACK_HASH)) {
 			String hash = cfg.getString(Config.KEY_RESOURCE_PACK_HASH);
 			return hash == null ? WarpBooks.DEFAULT_PACK_HASH : hash;
