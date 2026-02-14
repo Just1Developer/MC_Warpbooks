@@ -14,7 +14,7 @@ public final class Config {
 	private static final String KEY_RESOURCE_PACK_URL = "Resource Pack (only change if you know what you're doing)";
 	private static final String KEY_RESOURCE_PACK_HASH = "Resource Pack File Hash";
 
-	public static void initialize() {
+	public static void loadConfig() {
 		File f = new File(WarpBooks.getFolder(), "config.yml");
 		YamlConfiguration cfg = YamlConfiguration.loadConfiguration(f);
 		

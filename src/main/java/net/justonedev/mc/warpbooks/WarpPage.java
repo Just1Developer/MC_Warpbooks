@@ -31,6 +31,8 @@ public class WarpPage implements Listener {
 	public static final String itemLore = "§7Empty Warp page";
 	public static final String itemName = "§fWarp page";
 	public static ItemStack warpPage;
+
+    // todo warp pages should show where they lead
 	
 	public static void init() {
 		warpPage = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);

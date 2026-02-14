@@ -2,6 +2,7 @@ package net.justonedev.mc.warpbooks;
 
 import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -47,7 +48,7 @@ public class Fragment implements Listener {
 		ItemStack fragment = new ItemStack(warpFragment);
 		Damageable fragmentMeta = (Damageable) fragment.getItemMeta();
 		assert fragmentMeta != null;
-		fragmentMeta.setDamage((int) Math.round(63 - 64 * (new Random(System.nanoTime()).nextDouble() * maxDur + minDur)));
+		fragmentMeta.setDamage(Math.max(0, (int) Math.round(63 - 64 * (new Random(System.nanoTime()).nextDouble() * maxDur + minDur))));
 		fragment.setItemMeta(fragmentMeta);
 		return fragment;
 	}
@@ -60,10 +61,11 @@ public class Fragment implements Listener {
 	
 	@EventHandler
 	public void onLootGenerate(LootGenerateEvent e) {
-		if (e.getLootContext().getKiller() != null) return;
-		if (e.getLootContext().getLootedEntity() != null) return;
-		if (lootRandom.nextDouble() < CHANCE) {
-			e.getLoot().add(newFragment());
+        if (e.getLootContext().getKiller() != null) return;
+        if (e.getInventoryHolder() instanceof Entity entity && entity.getType().isAlive()) return;
+        double chance = lootRandom.nextDouble();
+        if (chance < CHANCE) {
+        	e.getLoot().add(newFragment());
 		}
 	}
 	
@@ -101,7 +103,7 @@ public class Fragment implements Listener {
 		ItemStack result = new ItemStack(warpFragment);
 		Damageable meta = (Damageable) result.getItemMeta();
 		assert meta != null;
-		meta.setDamage(64 - totalHP);
+		meta.setDamage(Math.max(0, 64 - totalHP));
 		result.setItemMeta(meta);
 		e.getInventory().setResult(result);
 	}
@@ -125,7 +127,7 @@ public class Fragment implements Listener {
 			ItemStack result = new ItemStack(Objects.requireNonNull(inv.getItem(0)));
 			Damageable meta = (Damageable) result.getItemMeta();
 			assert meta != null;
-			meta.setDamage(64 - (128 - m1.getDamage() - m2.getDamage()));
+			meta.setDamage(Math.max(0, 64 - (128 - m1.getDamage() - m2.getDamage())));
 			result.setItemMeta(meta);
 			
 			e.setResult(result);

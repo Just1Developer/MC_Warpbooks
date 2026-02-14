@@ -6,3 +6,4 @@ prefix: JustOneDeveloper's Warpbooks
 authors: [ JustOneDeveloper ]
 description: Warp books for spigot
 commands:
+  warpbooks:

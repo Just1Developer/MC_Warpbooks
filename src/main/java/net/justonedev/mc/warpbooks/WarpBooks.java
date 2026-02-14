@@ -7,16 +7,24 @@ import net.justonedev.mc.warpbooks.resourcepack.Resourcepack;
 import net.justonedev.mc.warpbooks.upgrade.EmptyBarSlot;
 import net.justonedev.mc.warpbooks.upgrade.Upgrade;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
-public final class WarpBooks extends JavaPlugin {
+public final class WarpBooks extends JavaPlugin implements CommandExecutor, TabExecutor {
 
     // Idea: Simple warp book
     
@@ -57,7 +65,13 @@ public final class WarpBooks extends JavaPlugin {
 
         init();
         EmptyBarSlot.init();
-        Config.initialize();
+        Config.loadConfig();
+
+        PluginCommand command = getCommand("warpbooks");
+        if (command != null) {
+            command.setExecutor(this);
+            command.setTabCompleter(this);
+        }
 
         if (this.getDescription().getVersion().toLowerCase().contains("dev")) {
             isDevelopmentBuild = true;
@@ -94,6 +108,31 @@ public final class WarpBooks extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         WarpPage.closeAll();
+    }
+
+    @SuppressWarnings("all")
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!sender.isOp()) return false;
+        if (args.length == 0) return false;
+        if (args.length == 1) {
+            switch (args[0].toLowerCase()) {
+                case "reload":
+                    Config.loadConfig();
+                    sender.sendMessage("§eWarpbooks Config reloaded.");
+                    break;
+                default:
+                    sender.sendMessage("§cUsage: /warpbooks [reload]");
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!sender.isOp()) return List.of();
+        if (args.length == 0) return List.of("reload");
+        return List.of();
     }
 
     public static ResourceHandler getResourceHandler() {
