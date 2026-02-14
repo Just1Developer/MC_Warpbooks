@@ -4,6 +4,7 @@ import net.justonedev.mc.warpbooks.Fragment;
 import net.justonedev.mc.warpbooks.WarpBook;
 import net.justonedev.mc.warpbooks.WarpBooks;
 import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
+import net.justonedev.mc.warpbooks.resourcepack.ModelDataInformation;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -242,7 +243,7 @@ public class Upgrade implements Listener {
 		if (item == null) return false;
 		if (item.getType() != Material.NETHERITE_INGOT) return false;
 		if (!item.hasItemMeta()) return true;
-        var modelData = ItemModelHandler.getModelData(item);
+        ModelDataInformation modelData = ItemModelHandler.getModelData(item);
 		if (modelData.isNone()) return true;
 		return !modelData.hasModelInteger() || modelData.getModelInteger() == 0;
 	}

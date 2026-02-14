@@ -46,14 +46,14 @@ public class WarpBook implements Listener {
 		assert meta != null;
 		meta.setDisplayName(warpBookName);
 		warpBook.setItemMeta(meta);
-        ItemModelHandler.applyModelData(warpBook, "warpBook", 8498);
+        ItemModelHandler.applyModelData(warpBook, "warpbook", 8498);
 		
 		elderWarpBook = new ItemStack(WarpBooks.PLUGIN_MATERIAL, 1);
 		meta = elderWarpBook.getItemMeta();
 		assert meta != null;
 		meta.setDisplayName(elderBookName);
 		elderWarpBook.setItemMeta(meta);
-        ItemModelHandler.applyModelData(elderWarpBook, "elderWarpBook", 8497);
+        ItemModelHandler.applyModelData(elderWarpBook, "elderwarpbook", 8497);
 		
 		WarpBooks.UPGRADE = new ItemStack(elderWarpBook);
 		meta  = WarpBooks.UPGRADE.getItemMeta();
@@ -72,8 +72,8 @@ public class WarpBook implements Listener {
 	}
 	
 	static boolean isWarpItem(ItemStack item, ItemStack warpItem) {
-		if (item == null || item.getType() != warpItem.getType()) return false;
-		if (item.getItemMeta() == null) return false;
+        if (item == null || item.getType() != warpItem.getType()) return false;
+        if (item.getItemMeta() == null) return false;
         ModelDataInformation modelData = ItemModelHandler.getModelData(item);
         if (modelData.isNone()) return false;
         return modelData.equals(ItemModelHandler.getModelData(warpItem));
@@ -129,17 +129,17 @@ public class WarpBook implements Listener {
 	public void onInteract(PlayerInteractEvent e) {
 		ItemStack book = e.getItem();
 		int level = getWarpBookLevel(book);
-		if (level == 0) return;
+        if (level == 0) return;
 		assert book != null;
 		// Yes, it's long. It's basically asserted that warp books have thad id tag, so we get it and parse the UUID
 		String uuid;
-		try {
+        try {
 			uuid = Objects.requireNonNull(Objects.requireNonNull(book.getItemMeta())
 					.getPersistentDataContainer().get(WarpBooks.idKey, PersistentDataType.STRING));
 		} catch (Exception ignored) {
 			return;
 		}
-		
+
 		Player p = e.getPlayer();
 		
 		if (p.isSneaking()) openWarpBookEditor(p, uuid, level == NORMAL_LEVEL);

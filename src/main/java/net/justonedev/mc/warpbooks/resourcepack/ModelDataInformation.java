@@ -1,6 +1,10 @@
 package net.justonedev.mc.warpbooks.resourcepack;
 
+import java.util.Objects;
+
 public class ModelDataInformation {
+
+    private static final String FORMAT = "[Type: %s, Modelname: %s, Legacy Integer: %d]";
 
     private final String modelName;
     private final int modelInteger;
@@ -50,5 +54,22 @@ public class ModelDataInformation {
 
     public static ModelDataInformation none() {
         return new ModelDataInformation(null, -1, ModelDataType.NONE);
+    }
+
+    @Override
+    public String toString() {
+        return FORMAT.formatted(modelDataType, modelName, modelInteger);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ModelDataInformation that = (ModelDataInformation) o;
+        return modelInteger == that.modelInteger && Objects.equals(modelName, that.modelName) && modelDataType == that.modelDataType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(modelName, modelInteger, modelDataType);
     }
 }

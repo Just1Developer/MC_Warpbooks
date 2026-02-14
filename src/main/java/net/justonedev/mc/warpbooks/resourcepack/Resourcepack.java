@@ -20,7 +20,7 @@ public class Resourcepack implements Listener {
 		RESOURCE_PACK_URL = packURL;
 		RESOURCE_PACK_UUID = UUID.randomUUID();
 		RESOURCE_PACK_SHA1 = hexStringToByteArray(packSHA1);
-		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+		//plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
 	@EventHandler

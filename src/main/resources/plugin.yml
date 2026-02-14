@@ -1,7 +1,7 @@
 name: WarpBooks
 version: '${project.version}'
 main: net.justonedev.mc.warpbooks.WarpBooks
-api-version: '1.16'
+api-version: '1.21'
 prefix: JustOneDeveloper's Warpbooks
 authors: [ JustOneDeveloper ]
 description: Warp books for spigot

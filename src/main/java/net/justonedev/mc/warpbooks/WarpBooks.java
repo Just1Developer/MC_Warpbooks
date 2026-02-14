@@ -1,6 +1,8 @@
 package net.justonedev.mc.warpbooks;
 
 import net.justonedev.mc.warpbooks.config.Config;
+import net.justonedev.mc.warpbooks.resourcepack.CrossVersionResourceHandler;
+import net.justonedev.mc.warpbooks.resourcepack.ResourceHandler;
 import net.justonedev.mc.warpbooks.resourcepack.Resourcepack;
 import net.justonedev.mc.warpbooks.upgrade.EmptyBarSlot;
 import net.justonedev.mc.warpbooks.upgrade.Upgrade;
@@ -35,6 +37,8 @@ public final class WarpBooks extends JavaPlugin {
     public static float teleportCooldown = defaultTeleportCooldown;
     
     public static final int WARP_SLOTS = 45;
+
+    public static boolean isDevelopmentBuild = false;
     
     // Resource pack stuff
     public static boolean useResourcePack = true;
@@ -44,12 +48,21 @@ public final class WarpBooks extends JavaPlugin {
     public static final String DEFAULT_PACK_HASH = "f94a69613c3fb6cd9b04eb9dd946976d468955dc";
     public static String packHash = DEFAULT_PACK_HASH;
 
+    private static ResourceHandler resourceHandler;
+
     @Override
     public void onEnable() {
         singleton = this;
+        resourceHandler = new CrossVersionResourceHandler(this);
+
         init();
         EmptyBarSlot.init();
         Config.initialize();
+
+        if (this.getDescription().getVersion().toLowerCase().contains("dev")) {
+            isDevelopmentBuild = true;
+            Bukkit.getLogger().warning("[" + this.getDescription().getPrefix() + "] Please note that this is a developer build and could contain bugs or untested features.");
+        }
         
         idKey = new NamespacedKey(this, "id");
         bookCraftKey = new NamespacedKey(this, "bookCraftRecipeKey");
@@ -81,6 +94,10 @@ public final class WarpBooks extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         WarpPage.closeAll();
+    }
+
+    public static ResourceHandler getResourceHandler() {
+        return resourceHandler;
     }
     
     public static Logger getBukkitLogger() {

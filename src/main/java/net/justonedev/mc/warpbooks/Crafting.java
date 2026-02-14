@@ -1,6 +1,7 @@
 package net.justonedev.mc.warpbooks;
 
 import net.justonedev.mc.warpbooks.resourcepack.ItemModelHandler;
+import net.justonedev.mc.warpbooks.resourcepack.ModelDataInformation;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -66,7 +67,7 @@ public class Crafting implements Listener {
 			
 			if (!item.hasItemMeta()) continue;
             if (!ItemModelHandler.hasModelData(item)) continue;
-            var modelData = ItemModelHandler.getModelData(item);
+            ModelDataInformation modelData = ItemModelHandler.getModelData(item);
 			if (modelData.hasModelName() || modelData.hasModelInteger() && modelData.getModelInteger() != 0) return;
 		}
 		
@@ -99,7 +100,7 @@ public class Crafting implements Listener {
 			}
 			
 			// Prevent Crafting with Warp Items, except for duplicating warp pages
-            var modelData = ItemModelHandler.getModelData(item);
+            ModelDataInformation modelData = ItemModelHandler.getModelData(item);
 			if (modelData.hasModelName() || modelData.hasModelInteger() && modelData.getModelInteger() != 0) {
 
 				if (WarpPage.isWarpPage(item) && page == null) {

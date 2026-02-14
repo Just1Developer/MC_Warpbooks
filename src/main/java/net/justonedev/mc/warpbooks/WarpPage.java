@@ -39,7 +39,7 @@ public class WarpPage implements Listener {
 		meta.setDisplayName(itemName);
 		meta.setLore(Collections.singletonList(itemLore));
 		warpPage.setItemMeta(meta);
-        ItemModelHandler.applyModelData(warpPage, "warpPage", 8499);
+        ItemModelHandler.applyModelData(warpPage, "warppage", 8499);
 	}
 	
 	public static boolean isWarpPage(ItemStack item) {
