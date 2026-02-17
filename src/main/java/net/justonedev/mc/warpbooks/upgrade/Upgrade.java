@@ -30,6 +30,8 @@ public class Upgrade implements Listener {
 
 	private static final String UpgradeTitle = "Upgrade Warpbook";
 	private static final String UpgradedTitle = "Warpbook upgraded";
+
+    // todo inventory drag should work for ingots
 	
 	public static void openUpgrader(Player p) {
 		Inventory upgrade = Bukkit.createInventory(null, 54, UpgradeTitle);
